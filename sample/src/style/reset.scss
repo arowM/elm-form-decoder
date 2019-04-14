@@ -1,0 +1,30 @@
+*,
+*::before,
+*::after {
+	color: inherit;
+	margin: 0;
+	border: 0;
+  box-sizing: border-box;
+	font-style: normal;
+	font-weight: normal;
+	text-align: left;
+  vertical-align: top;
+	list-style: none;
+	font-family: inherit;
+  font-size: inherit;
+  line-height: 1.2;
+  padding: 0;
+}
+
+body {
+  font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+  font-feature-settings : "pkna";
+}
+
+code {
+  font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+}
+
+html {
+  font-size: 16px;
+}

@@ -1,0 +1,107 @@
+@import 'variables';
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: $half-padding;
+  width: inherit;
+  height: inherit;
+
+  &.quarter {
+    padding: $quarter-padding;
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.justifyStart {
+  justify-content: flex-start;
+}
+
+.justifyEnd {
+  justify-content: flex-end;
+}
+
+.justifyCenter {
+  justify-content: center;
+}
+
+.justifyBetween {
+  justify-content: space-between;
+}
+
+.justifyAround {
+  justify-content: space-around;
+}
+
+.justifyEvenly {
+  justify-content: space-evenly;
+}
+
+.alignStretch {
+  align-items: stretch;
+}
+
+.alignStart {
+  align-items: flex-start;
+}
+
+.alignEnd {
+  align-items: flex-end;
+}
+
+.alignCenter {
+  align-items: center;
+}
+
+.alignBaseline {
+  align-items: baseline;
+}
+
+.flexNowrap {
+  flex-wrap: nowrap;
+}
+
+.expanded {
+  flex: 1;
+  width: 100%;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.fullHeight {
+  height: 100%;
+}
+
+.onPC {
+  display: block;
+
+  @media screen and (max-width: $sp-size) {
+    display: none;
+  }
+}
+
+.onTablet {
+  display: none;
+
+  @media screen and (max-width: $tablet-size) {
+    display: block;
+  }
+}
+
+.onSP {
+  display: none;
+
+  @media screen and (max-width: $sp-size) {
+    display: block;
+  }
+}

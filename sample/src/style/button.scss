@@ -1,0 +1,19 @@
+@import 'variables';
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: inherit;
+  height: inherit;
+  padding: $half-padding $default-padding;
+  min-height: 2.4em;
+  border-radius: 1.2em;
+  color: $invert-color;
+  background-color: $background-color0;
+
+  &:hover {
+    background-color: $background-color1;
+  }
+}

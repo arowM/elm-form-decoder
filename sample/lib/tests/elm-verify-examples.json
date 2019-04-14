@@ -1,0 +1,8 @@
+{
+  "root": "../src",
+  "tests":
+  [ "Email"
+  , "MobilePhone"
+  , "Decoder"
+  ]
+}

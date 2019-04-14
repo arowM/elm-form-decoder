@@ -1,0 +1,23 @@
+{
+    "type": "package",
+    "name": "arowM/local",
+    "summary": "Local library for sample form",
+    "license": "MIT",
+    "version": "1.0.0",
+    "exposed-modules": [
+        "Css",
+        "Email",
+        "Decoder",
+        "MobilePhone"
+    ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
+    "dependencies": {
+        "arowM/html": "1.0.0 <= v < 2.0.0",
+        "elm/core": "1.0.0 <= v < 2.0.0"
+    },
+    "test-dependencies": {
+        "elm/json": "1.1.3 <= v < 2.0.0",
+        "elm-explorations/test": "1.2.0 <= v < 2.0.0",
+        "elm-community/result-extra": "2.2.1 <= v < 3.0.0"
+    }
+}

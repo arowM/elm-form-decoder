@@ -1,0 +1,120 @@
+@import 'variables';
+
+.title {
+  font-size: 1.6em;
+}
+
+.highBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: inherit;
+  height: 6em;
+  padding: $default-padding;
+  border-radius: $default-radius;
+  background-color: #fc7;
+  border: dashed 2px #ea5;
+}
+
+.basicBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: inherit;
+  height: inherit;
+  padding: $default-padding;
+  border-radius: $default-radius;
+  background-color: #7cf;
+  border: dashed 2px #5ae;
+}
+
+.outerFrame {
+  border: solid 2px #333;
+}
+
+.hashedSection {
+  margin-top: 1.2em;
+  padding: $half-padding;
+  font-size: 1.2em;
+  a {
+    margin-left: $half-padding;
+  }
+}
+
+.boundary {
+  border: dotted 1px #e55;
+}
+
+.markdown {
+  blockquote, p, pre, ul, ol, h1, h2, h3, h4 {
+    padding: $half-padding;
+  }
+
+  h2 {
+    font-size: 1.4em;
+    margin-top: 1.2em;
+  }
+
+  h3 {
+    font-size: 1.2em;
+    margin-top: 1.2em;
+
+    span {
+      margin-right: $half-padding;
+    }
+  }
+
+  ul > li::before {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    width: 0.4em;
+    height: 0.4em;
+    margin-right: 0.4em;
+    border-radius: 50%;
+    background-color: $background-color4;
+  }
+
+  ol {
+    counter-reset: order;
+  }
+
+  ol > li::before {
+    counter-increment: order;
+    content: counter(order) ".";
+    display: inline-block;
+    vertical-align: baseline;
+    margin-right: 0.4em;
+    font-size: 0.9em;
+  }
+
+  blockquote {
+    border-left: solid 4px #333;
+    margin-left: $half-padding;
+
+    p {
+      font-style: italic;
+    }
+  }
+
+  strong {
+    font-weight: bold;
+  }
+
+  code {
+    background-color: $background-color0;
+    vertical-align: baseline;
+    padding: 0 0.2em;
+  }
+
+  pre {
+    background-color: $background-color4;
+    color: $invert-color;
+    margin: $half-padding;
+
+    code {
+      background-color: transparent;
+      padding: 0;
+    }
+  }
+}

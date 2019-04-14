@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "scripts": {
+    "format": "elm-format src",
+    "start": "elm-doc-preview",
+    "test": "elm-analyse && elm-format --validate src && elm-verify-examples"
+  },
+  "devDependencies": {
+    "elm-test": "^0.19.0-rev3",
+    "elm-verify-examples": "^3.0.1",
+    "elm-analyse": "^0.16.0",
+    "elm-doc-preview": "^2.0.3",
+    "elm-format": "^0.8.1"
+  },
+  "dependencies": {
+    "elm": "^0.19.0-bugfix2"
+  }
+}

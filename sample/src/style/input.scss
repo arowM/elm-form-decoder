@@ -1,0 +1,45 @@
+@import 'variables';
+
+.input {
+  width: inherit;
+  height: inherit;
+  border-radius: 0.3em;
+  box-shadow: inset 0 0 5px 0 rgba($background-color3, 0.75);
+  padding: 0.4em 0.6em;
+
+  &[type="number"] {
+    text-align: right;
+  }
+}
+
+.decorate {
+  height: inherit;
+
+  .input {
+    border-radius: 0.3em;
+    box-shadow: inset 0 0 5px 0 rgba($shadow-color, 0.75);
+    padding: 0.6em;
+  }
+
+  /* Color varidations */
+  &.dark .input {
+    background-color: $background-color0;
+  }
+
+  &.shadow1 .input {
+    box-shadow: inset 0 0 5px 0 rgba($background-color3, 0.75);
+  }
+
+  /* Shape varidations */
+  &.size1 .input {
+    padding: 0.5em 0.6em;
+  }
+
+  &.size2 .input {
+    padding: 0.4em 0.6em;
+  }
+
+  &.size3 .input {
+    padding: 0.3em 0.6em;
+  }
+}

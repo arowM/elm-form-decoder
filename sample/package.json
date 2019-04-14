@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "dependencies": {
+    "autoprefixer": "^9.4.2",
+    "elm": "^0.19.0-bugfix2",
+    "elm-analyse": "^0.16.0",
+    "elm-format": "^0.8.1",
+    "elm-test": "^0.19.0-rev3",
+    "elm-verify-examples": "^3.0.1",
+    "highlight.js": "^9.13.1",
+    "parcel-bundler": "^1.10.3",
+    "postcss": "^7.0.6",
+    "postcss-flexbugs-fixes": "^4.1.0",
+    "postcss-modules": "^1.4.1",
+    "sass": "^1.15.2"
+  },
+  "scripts": {
+    "start": "parcel src/*.html --public-url /",
+    "build": "parcel build src/*.html -d ../docs --public-url /elm-form-validator/",
+    "format": "elm-format src",
+    "test": "elm-analyse && elm-format --validate src/ && elm-test"
+  },
+  "author": "Kadzuya Okamoto",
+  "license": "MIT",
+  "devDependencies": {
+    "elm-hot": "^1.0.1"
+  }
+}
