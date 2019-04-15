@@ -98,7 +98,7 @@ Usage:
     --> Err [ TooManyAtmark ]
 
 -}
-decoder : Decoder Invalid Email
+decoder : Decoder String Invalid Email
 decoder =
     Decoder.custom <|
         \str ->

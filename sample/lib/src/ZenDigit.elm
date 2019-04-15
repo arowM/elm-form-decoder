@@ -22,7 +22,7 @@ import Form.Decoder as Decoder exposing (Decoder)
 
 {-| Same as `Form.Decoder.int` but also converts Zenkaku digits to Hankaku digits beforehands.
 -}
-intDecoder : err -> Decoder err Int
+intDecoder : err -> Decoder String err Int
 intDecoder err =
     Decoder.custom <|
         \a ->

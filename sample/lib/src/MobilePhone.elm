@@ -35,8 +35,7 @@ module MobilePhone exposing
 
 -}
 
-import Form.Decoder as Decoder exposing (Decoder)
-import Form.Validator as Validator exposing (Validator)
+import Form.Decoder as Decoder exposing (Decoder, Validator)
 import ZenDigit
 
 
@@ -111,18 +110,16 @@ Note that it converts Zenkaku digits to Hankaku digits beforehand.
     --> Err [ InvalidCharacter ]
 
 -}
-decoder : Decoder Invalid MobilePhone
+decoder : Decoder String Invalid MobilePhone
 decoder =
     Decoder.succeed
         |> Decoder.map normalize
         |> Decoder.assert invalidChar
         |> Decoder.map raw
         |> Decoder.assert
-            (Validator.concat
-                [ invalidPrefix
-                , invalidLength
-                ]
-            )
+            invalidPrefix
+        |> Decoder.assert
+            invalidLength
         |> Decoder.map format
 
 
@@ -234,14 +231,14 @@ raw (Normalized str) =
 
 invalidLength : Validator Raw Invalid
 invalidLength =
-    Validator.when
+    Decoder.when
         (\(Raw str) -> String.length str /= 11)
-        (Validator.fail InvalidLength)
+        (Decoder.fail InvalidLength)
 
 
 invalidPrefix : Validator Raw Invalid
 invalidPrefix =
-    Validator.when
+    Decoder.when
         (\(Raw str) ->
             List.all (\p -> not <| String.startsWith p str)
                 [ "020"
@@ -254,14 +251,14 @@ invalidPrefix =
                 , "090"
                 ]
         )
-        (Validator.fail InvalidPrefix)
+        (Decoder.fail InvalidPrefix)
 
 
 invalidChar : Validator Normalized Invalid
 invalidChar =
-    Validator.unless
+    Decoder.unless
         (\(Normalized str) -> String.isEmpty <| String.filter (\c -> not (Char.isDigit c || isHiphen c)) str)
-        (Validator.fail InvalidCharacter)
+        (Decoder.fail InvalidCharacter)
 
 
 isHiphen : Char -> Bool
