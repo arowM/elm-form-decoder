@@ -2,6 +2,5 @@
   "root": "../src",
   "tests":
   [ "Form.Decoder"
-  , "Form.Validator"
   ]
 }

@@ -1,21 +1,31 @@
 module Form.Decoder exposing
     ( Decoder
+    , Validator
     , run
-    , required
-    , optional
     , int
     , float
     , succeed
+    , fail
+    , minBound
+    , maxBound
+    , minLength
+    , maxLength
     , custom
     , assert
+    , when
+    , unless
+    , lift
     , map
     , map2
     , map3
     , map4
     , map5
+    , field
+    , top
     , mapError
     , andThen
-    , mapResult
+    , optional
+    , required
     )
 
 {-| Main module that exports primitive decoders and helper functions for form decoding.
@@ -24,13 +34,12 @@ module Form.Decoder exposing
 # Types
 
 @docs Decoder
+@docs Validator
 
 
 # Decode functions
 
 @docs run
-@docs required
-@docs optional
 
 
 # Primitive decoders
@@ -40,36 +49,47 @@ module Form.Decoder exposing
 @docs succeed
 
 
+# Primitive validators
+
+@docs fail
+@docs minBound
+@docs maxBound
+@docs minLength
+@docs maxLength
+
+
 # Custom decoders
 
 @docs custom
 
 
-# Validations
+# Helper functions for validation
 
 @docs assert
+@docs when
+@docs unless
 
 
-# Common functions
+# Function to build up decoder for forms
 
+@docs lift
 @docs map
 @docs map2
 @docs map3
 @docs map4
 @docs map5
+@docs field
+@docs top
 @docs mapError
+
+
+# Advanced
+
 @docs andThen
-
-
-# Advanced functions
-
-@docs mapResult
+@docs optional
+@docs required
 
 -}
-
-import Form.Validator as Validator exposing (Validator)
-
-
 
 -- Types
 
@@ -77,8 +97,15 @@ import Form.Validator as Validator exposing (Validator)
 {-| Core type representing a decoder.
 It decodes user input into type `a`, raising error of type `err`.
 -}
-type Decoder err a
-    = Decoder (String -> Result (List err) a)
+type Decoder input err a
+    = Decoder (input -> Result (List err) a)
+
+
+{-| An alias for special decoder that does not produce any outputs.
+It is used for just validating user inputs.
+-}
+type alias Validator input err =
+    Decoder input err ()
 
 
 
@@ -94,78 +121,9 @@ type Decoder err a
     --> Ok 34
 
 -}
-run : Decoder err a -> String -> Result (List err) a
+run : Decoder input err a -> input -> Result (List err) a
 run (Decoder f) a =
     f a
-
-
-{-| Decode required user input, raising `err` when the input is `Nothing`.
-
-This is usefull if you want to distinguish uninput state from the situation that users deleted their inputs after input something.
-
-    type Error
-        = Required
-        | Invalid
-
-    myDecoder : Decoder Error Int
-    myDecoder =
-        int Invalid
-
-    required Required myDecoder <| Nothing
-    --> Err [ Required ]
-
-    required Required myDecoder <| Just ""
-    --> Err [ Invalid ]
-
-    required Required myDecoder <| Just "foo"
-    --> Err [ Invalid ]
-
-    required Required myDecoder <| Just "23"
-    --> Ok 23
-
--}
-required : err -> Decoder err a -> Maybe String -> Result (List err) a
-required err (Decoder f) ma =
-    case ma of
-        Nothing ->
-            Err [ err ]
-
-        Just a ->
-            f a
-
-
-{-| Decode optional user input, returns `Ok Nothing` if the input is `Nothing`.
-
-This is usefull if you want to distinguish uninput state from the situation that users deleted their inputs after input something.
-
-    type Error
-        = Invalid
-
-    myDecoder : Decoder Error Int
-    myDecoder =
-        int Invalid
-
-    optional myDecoder <| Nothing
-    --> Ok Nothing
-
-    optional myDecoder <| Just ""
-    --> Err [ Invalid ]
-
-    optional myDecoder <| Just "foo"
-    --> Err [ Invalid ]
-
-    optional myDecoder <| Just "23"
-    --> Ok (Just 23)
-
--}
-optional : Decoder err a -> Maybe String -> Result (List err) (Maybe a)
-optional (Decoder f) ma =
-    case ma of
-        Nothing ->
-            Ok Nothing
-
-        Just a ->
-            Result.map Just <| f a
 
 
 
@@ -177,8 +135,11 @@ optional (Decoder f) ma =
     run succeed "foo"
     --> Ok "foo"
 
+    run succeed 34
+    --> Ok 34
+
 -}
-succeed : Decoder err String
+succeed : Decoder input never input
 succeed =
     custom <| Ok
 
@@ -198,7 +159,7 @@ succeed =
     --> Err [ "Invalid" ]
 
 -}
-int : err -> Decoder err Int
+int : err -> Decoder String err Int
 int err =
     custom <| Result.fromMaybe [ err ] << String.toInt
 
@@ -218,7 +179,7 @@ int err =
     --> Ok 34000
 
 -}
-float : err -> Decoder err Float
+float : err -> Decoder String err Float
 float err =
     custom <| Result.fromMaybe [ err ] << String.toFloat
 
@@ -227,25 +188,133 @@ float err =
 -- Custom decoders
 
 
-{-| Constructor for `Decoder err a`.
+{-| Constructor for `Decoder input err a`.
 
-    int err =
-        custom <| Result.fromMaybe [ err ] << String.toInt
+    type Error
+        = TooSmall
+        | InvalidInt
+
+    customValidator : Validator Int Error
+    customValidator =
+        custom <| \n ->
+            if n < 10
+                then Err [ TooSmall ]
+                else Ok ()
+
+    customInt : Decoder String Error Int
+    customInt =
+        custom <| Result.fromMaybe [ InvalidInt ] << String.toInt
+
+    run customValidator 8
+    --> Err [ TooSmall ]
+
+    run customInt "foo"
+    --> Err [ InvalidInt ]
 
 -}
-custom : (String -> Result (List err) a) -> Decoder err a
+custom : (input -> Result (List err) a) -> Decoder input err a
 custom =
     Decoder
 
 
 
--- Validations
+-- Primitive validators
+
+
+{-| Primitive validator which always results to invalid.
+
+    run (fail "error") "foo"
+    --> Err [ "error" ]
+
+    run (fail "error") <| Just 34
+    --> Err [ "error" ]
+
+    run (when (\n -> n < 0) <| fail "error") -1
+    --> Err [ "error" ]
+
+    run (when (\n -> n < 0) <| fail "error") 0
+    --> Ok ()
+
+-}
+fail : err -> Validator a err
+fail err =
+    custom <| \_ -> Err [ err ]
+
+
+{-| Primitive validator limiting by minimum bound.
+
+    run (minBound "Too small" 10) 2
+    --> Err [ "Too small" ]
+
+-}
+minBound : err -> comparable -> Validator comparable err
+minBound err bound =
+    custom <|
+        \n ->
+            if n >= bound then
+                Ok ()
+
+            else
+                Err [ err ]
+
+
+{-| Primitive validator limiting by maximum bound.
+
+    run (maxBound "Too large" 100) 200
+    --> Err [ "Too large" ]
+
+-}
+maxBound : err -> comparable -> Validator comparable err
+maxBound err bound =
+    custom <|
+        \n ->
+            if n <= bound then
+                Ok ()
+
+            else
+                Err [ err ]
+
+
+{-| Primitive validator limiting by minimum length.
+
+    run (minLength "Too short" 10) "short"
+    --> Err [ "Too short" ]
+
+-}
+minLength : err -> Int -> Validator String err
+minLength err bound =
+    custom <|
+        \str ->
+            if String.length str >= bound then
+                Ok ()
+
+            else
+                Err [ err ]
+
+
+{-| Primitive validator limiting by maximum length.
+
+    run (maxLength "Too long" 10) "tooooooooo long"
+    --> Err [ "Too long" ]
+
+-}
+maxLength : err -> Int -> Validator String err
+maxLength err bound =
+    custom <|
+        \str ->
+            if String.length str <= bound then
+                Ok ()
+
+            else
+                Err [ err ]
+
+
+
+-- Helper functions to validation
 
 
 {-| Apply validator on given decoder.
 If a user input is invalid for given validator, decoding fails.
-
-    import Form.Validator as Validator exposing (Validator)
 
     type Error
         = Invalid
@@ -254,13 +323,13 @@ If a user input is invalid for given validator, decoding fails.
 
     validator1 : Validator Int Error
     validator1 =
-        Validator.minBound TooSmall 3
+        minBound TooSmall 3
 
     validator2 : Validator Int Error
     validator2 =
-        Validator.maxBound TooBig 6
+        maxBound TooBig 6
 
-    myDecoder : Decoder Error Int
+    myDecoder : Decoder String Error Int
     myDecoder =
         int Invalid
             |> assert validator1
@@ -279,111 +348,297 @@ If a user input is invalid for given validator, decoding fails.
     --> Ok 3
 
 -}
-assert : Validator a err -> Decoder err a -> Decoder err a
+assert : Validator a err -> Decoder input err a -> Decoder input err a
 assert v (Decoder f) =
     custom <|
         \a ->
             Result.andThen
-                (\x -> Result.map (\() -> x) <| Validator.run v x)
+                (\x -> Result.map (\() -> x) <| run v x)
                 (f a)
 
 
+{-| Only checks validity if a condition is `True`.
 
--- Common functions
+    type alias Form =
+        { enableCheck : Bool
+        , input : String
+        }
+
+    type Error
+        = TooShort
+
+    myValidator : Validator Form Error
+    myValidator =
+        when .enableCheck <|
+            lift .input <|
+                minLength TooShort 3
+
+    run myValidator { enableCheck = True, input = "f" }
+    --> Err [ TooShort ]
+
+    run myValidator { enableCheck = False, input = "f" }
+    --> Ok ()
+
+    run myValidator { enableCheck = True, input = "foo" }
+    --> Ok ()
+
+-}
+when : (a -> Bool) -> Validator a err -> Validator a err
+when g (Decoder f) =
+    custom <|
+        \a ->
+            if g a then
+                f a
+
+            else
+                Ok ()
+
+
+{-| Only checks validity unless a condition is `True`.
+
+    type alias Form =
+        { skipCheck : Bool
+        , input : String
+        }
+
+    type Error
+        = TooShort
+
+    myValidator : Validator Form Error
+    myValidator =
+        unless .skipCheck <|
+            lift .input <|
+                minLength TooShort 3
+
+    run myValidator { skipCheck = False, input = "f" }
+    --> Err [ TooShort ]
+
+    run myValidator { skipCheck = True, input = "f" }
+    --> Ok ()
+
+    run myValidator { skipCheck = False, input = "foo" }
+    --> Ok ()
+
+-}
+unless : (a -> Bool) -> Validator a err -> Validator a err
+unless g =
+    when (not << g)
+
+
+
+-- Function to build up decoder for forms
+
+
+{-| `lift` is mainly used for accessing sub model of target value.
+
+    type alias Form =
+        { field1 : String
+        , field2 : String
+        }
+
+    type Error
+        = TooShort
+
+    run (lift .field1 <| minLength TooShort 5)
+        (Form "foo" "barrrrrrrrrrr")
+    --> Err [ TooShort ]
+
+-}
+lift : (j -> i) -> Decoder i err a -> Decoder j err a
+lift f (Decoder g) =
+    custom <| g << f
 
 
 {-| -}
-map : (a -> b) -> Decoder x a -> Decoder x b
+map : (a -> b) -> Decoder input x a -> Decoder input x b
 map f (Decoder g) =
     custom <| Result.map f << g
 
 
-{-| TODO
+{-|
+
+    type alias Form =
+        { str : String
+        , int : String
+        }
+
+    type alias Decoded =
+        { str : String
+        , int : Int
+        }
+
+    type Error
+        = TooShort
+        | InvalidInt
+
+    strDecoder : Decoder String Error String
+    strDecoder =
+        succeed
+            |> assert (minLength TooShort 5)
+
+    intDecoder : Decoder String Error Int
+    intDecoder =
+        int InvalidInt
+
+    formDecoder : Decoder Form Error Decoded
+    formDecoder =
+        map2 Decoded
+            (lift .str strDecoder)
+            (lift .int intDecoder)
+
+    run formDecoder (Form "foo" "bar")
+    --> Err [ TooShort, InvalidInt ]
+
+    run formDecoder (Form "foo" "23")
+    --> Err [ TooShort ]
+
+    run formDecoder (Form "foobar" "bar")
+    --> Err [ InvalidInt ]
+
+    run formDecoder (Form "foobar" "23")
+    --> Ok (Decoded "foobar" 23)
+
 -}
-map2 : (a -> b -> value) -> Decoder x a -> Decoder x b -> Decoder x value
-map2 f (Decoder g) (Decoder h) =
-    custom <|
-        \a ->
-            Result.map2 f
-                (g a)
-                (h a)
+map2 : (a -> b -> value) -> Decoder input x a -> Decoder input x b -> Decoder input x value
+map2 f d1 d2 =
+    top f
+        |> field d1
+        |> field d2
 
 
 {-| -}
-map3 : (a -> b -> c -> value) -> Decoder x a -> Decoder x b -> Decoder x c -> Decoder x value
-map3 f (Decoder g) (Decoder h) (Decoder i) =
-    custom <|
-        \a ->
-            Result.map3 f
-                (g a)
-                (h a)
-                (i a)
+map3 : (a -> b -> c -> value) -> Decoder input x a -> Decoder input x b -> Decoder input x c -> Decoder input x value
+map3 f d1 d2 d3 =
+    top f
+        |> field d1
+        |> field d2
+        |> field d3
 
 
 {-| -}
-map4 : (a -> b -> c -> d -> value) -> Decoder x a -> Decoder x b -> Decoder x c -> Decoder x d -> Decoder x value
-map4 f (Decoder g) (Decoder h) (Decoder i) (Decoder j) =
-    custom <|
-        \a ->
-            Result.map4 f
-                (g a)
-                (h a)
-                (i a)
-                (j a)
+map4 : (a -> b -> c -> d -> value) -> Decoder input x a -> Decoder input x b -> Decoder input x c -> Decoder input x d -> Decoder input x value
+map4 f d1 d2 d3 d4 =
+    top f
+        |> field d1
+        |> field d2
+        |> field d3
+        |> field d4
 
 
 {-| -}
-map5 : (a -> b -> c -> d -> e -> value) -> Decoder x a -> Decoder x b -> Decoder x c -> Decoder x d -> Decoder x e -> Decoder x value
-map5 f (Decoder g) (Decoder h) (Decoder i) (Decoder j) (Decoder k) =
-    custom <|
-        \a ->
-            Result.map5 f
-                (g a)
-                (h a)
-                (i a)
-                (j a)
-                (k a)
-
-
-{-| -}
-mapError : (x -> y) -> Decoder x a -> Decoder y a
-mapError f (Decoder g) =
-    custom <| Result.mapError (List.map f) << g
-
-
-{-| Chain together a sequence of decoders.
--}
-andThen : (a -> Decoder x b) -> Decoder x a -> Decoder x b
-andThen f (Decoder g) =
-    custom <|
-        \a ->
-            case g a of
-                Err err ->
-                    Err err
-
-                Ok x ->
-                    run (f x) a
-
-
-
--- Advanced functions
+map5 : (a -> b -> c -> d -> e -> value) -> Decoder input x a -> Decoder input x b -> Decoder input x c -> Decoder input x d -> Decoder input x e -> Decoder input x value
+map5 f d1 d2 d3 d4 d5 =
+    top f
+        |> field d1
+        |> field d2
+        |> field d3
+        |> field d4
+        |> field d5
 
 
 {-|
 
-    import Form.Validator as Validator
+    type alias Form =
+        { str : String
+        , int : String
+        }
+
+    type alias Decoded =
+        { str : String
+        , int : Int
+        }
+
+    type FormError
+        = FormErrorStr StrError
+        | FormErrorInt IntError
+
+
+    type StrError
+        = TooShort
+
+    type IntError
+        = Invalid
+
+    strDecoder : Decoder String StrError String
+    strDecoder =
+        succeed
+            |> assert (minLength TooShort 5)
+
+    intDecoder : Decoder String IntError Int
+    intDecoder =
+        int Invalid
+
+    formDecoder : Decoder Form FormError Decoded
+    formDecoder =
+        map2 Decoded
+            (mapError FormErrorStr <| lift .str strDecoder)
+            (mapError FormErrorInt <| lift .int intDecoder)
+
+
+    run formDecoder (Form "foo" "bar")
+    --> Err [ FormErrorStr TooShort, FormErrorInt Invalid ]
+
+    run formDecoder (Form "foo" "23")
+    --> Err [ FormErrorStr TooShort ]
+
+    run formDecoder (Form "foobar" "bar")
+    --> Err [ FormErrorInt Invalid ]
+
+    run formDecoder (Form "foobar" "23")
+    --> Ok (Decoded "foobar" 23)
+
+-}
+mapError : (x -> y) -> Decoder input x a -> Decoder input y a
+mapError f (Decoder g) =
+    custom <| Result.mapError (List.map f) << g
+
+
+{-| Build up decoder for form.
+Use `mapN` directly if available.
+
+    mapN f d1 d2 d3 ... dN =
+        top f
+            |> field d1
+            |> field d2
+            |> field d3
+            ...
+            |> field dN
+
+-}
+field : Decoder i err a -> Decoder i err (a -> b) -> Decoder i err b
+field (Decoder f) (Decoder g) =
+    custom <|
+        \i ->
+            case ( g i, f i ) of
+                ( Err gErr, Err fErr ) ->
+                    Err <| gErr ++ fErr
+
+                ( Ok h, res ) ->
+                    Result.map h res
+
+                ( Err gErr, Ok _ ) ->
+                    Err gErr
+
+
+{-| -}
+top : f -> Decoder i err f
+top f =
+    custom <| \_ -> Ok f
+
+
+{-| Chain together a sequence of decoders.
 
     type Error
         = InvalidInt
         | TooLong
         | TooBig
 
-    advancedDecoder : Decoder Error Int
+    advancedDecoder : Decoder String Error Int
     advancedDecoder =
         succeed
-            |> assert (Validator.maxLength TooLong 5)
-            |> mapResult (run (int InvalidInt))
-            |> assert (Validator.maxBound TooBig 300)
+            |> assert (maxLength TooLong 5)
+            |> andThen (\_ -> int InvalidInt)
+            |> assert (maxBound TooBig 300)
 
     run advancedDecoder "foooooo"
     --> Err [ TooLong ]
@@ -401,9 +656,88 @@ andThen f (Decoder g) =
     --> Ok 200
 
 -}
-mapResult : (a -> Result (List err) b) -> Decoder err a -> Decoder err b
-mapResult f decoder =
+andThen : (a -> Decoder input x b) -> Decoder input x a -> Decoder input x b
+andThen f (Decoder g) =
     custom <|
         \a ->
-            run decoder a
-                |> Result.andThen f
+            case g a of
+                Err err ->
+                    Err err
+
+                Ok x ->
+                    run (f x) a
+
+
+{-| Lift a decoder for required user input, raising `err` when the input is `Nothing`.
+
+This is usefull if you want to distinguish uninput state from the situation that users deleted their inputs after input something.
+
+    type Error
+        = Required
+        | Invalid
+
+    myDecoder : Decoder (Maybe String) Error Int
+    myDecoder =
+        int Invalid
+            |> required Required
+
+    run myDecoder <| Nothing
+    --> Err [ Required ]
+
+    run myDecoder <| Just ""
+    --> Err [ Invalid ]
+
+    run myDecoder <| Just "foo"
+    --> Err [ Invalid ]
+
+    run myDecoder <| Just "23"
+    --> Ok 23
+
+-}
+required : err -> Decoder input err a -> Decoder (Maybe input) err a
+required err (Decoder f) =
+    custom <|
+        \ma ->
+            case ma of
+                Nothing ->
+                    Err [ err ]
+
+                Just a ->
+                    f a
+
+
+{-| Lift a decoder for optional user input, returns `Ok Nothing` if the input is `Nothing`.
+
+This is usefull if you want to distinguish uninput state from the situation that users deleted their inputs after input something.
+
+    type Error
+        = Invalid
+
+    myDecoder : Decoder (Maybe String) Error (Maybe Int)
+    myDecoder =
+        int Invalid
+            |> optional
+
+    run myDecoder <| Nothing
+    --> Ok Nothing
+
+    run myDecoder <| Just ""
+    --> Err [ Invalid ]
+
+    run myDecoder <| Just "foo"
+    --> Err [ Invalid ]
+
+    run myDecoder <| Just "23"
+    --> Ok (Just 23)
+
+-}
+optional : Decoder input err a -> Decoder (Maybe input) err (Maybe a)
+optional (Decoder f) =
+    custom <|
+        \ma ->
+            case ma of
+                Nothing ->
+                    Ok Nothing
+
+                Just a ->
+                    Result.map Just <| f a
