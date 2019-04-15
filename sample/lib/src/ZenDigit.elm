@@ -1,5 +1,5 @@
 module ZenDigit exposing
-    ( int
+    ( intDecoder
     , toHankaku
     )
 
@@ -8,7 +8,7 @@ module ZenDigit exposing
 
 # Helper functions
 
-@docs int
+@docs intDecoder
 
 
 # Lower level functions
@@ -22,8 +22,8 @@ import Form.Decoder as Decoder exposing (Decoder)
 
 {-| Same as `Form.Decoder.int` but also converts Zenkaku digits to Hankaku digits beforehands.
 -}
-int : err -> Decoder err Int
-int err =
+intDecoder : err -> Decoder err Int
+intDecoder err =
     Decoder.custom <|
         \a ->
             Decoder.run
