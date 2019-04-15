@@ -1,6 +1,7 @@
 module Email exposing
     ( Email
-    , fromString
+    , Invalid(..)
+    , decoder
     , toString
     , local
     , domain
@@ -12,11 +13,12 @@ module Email exposing
 # Core
 
 @docs Email
+@docs Invalid
 
 
 # Constructors
 
-@docs fromString
+@docs decoder
 
 
 ## Convert functions
@@ -31,6 +33,8 @@ module Email exposing
 
 -}
 
+import Form.Decoder as Decoder exposing (Decoder)
+
 
 {-| Representing a valid email address.
 -}
@@ -38,51 +42,85 @@ type Email
     = Email String String
 
 
-{-| Construct an `Email` value from `String`.
-It only assures that input string contains exactly one `@` character.
+{-| Representing invalid formats for email address.
+-}
+type Invalid
+    = NoAtmark
+    | TooManyAtmark
+    | NoLocal
+    | NoDomain
 
-    Maybe.map toString <| fromString "local@domain"
-    --> Just "local@domain"
 
-    fromString "local@"
-    --> Nothing
+{-| `Decoder` for `Email`.
+It assures that input string follows rules bellow.
 
-    fromString "@domain"
-    --> Nothing
+1.  It contains exactly one '@'
+      - If not, it returns `Err NoAtmark` or `Err TooManyAtmark`
 
-    fromString "@"
-    --> Nothing
+2.  It does not start with '@'
+      - If not, it returns `Err NoLocal`
 
-    fromString "local@middle@domain"
-    --> Nothing
+3.  It does not end with '@'
+      - If not, it returns `Err NoDomain`
 
-    Maybe.map toString <| fromString "日本語@ドメイン"
-    --> Just "日本語@ドメイン"
+Usage:
 
-    Maybe.map toString <| fromString "日本語＠ドメイン"
-    --> Just "日本語@ドメイン"
 
-    fromString "日本語＠ドメ＠イン"
-    --> Nothing
+    import Form.Decoder as Decoder
 
-    fromString "日本語@ドメ＠イン"
-    --> Nothing
+    Result.map toString <| Decoder.run decoder "local@domain"
+    --> Ok "local@domain"
+
+    Decoder.run decoder "local@"
+    --> Err [ NoDomain ]
+
+    Decoder.run decoder "@domain"
+    --> Err [ NoLocal ]
+
+    Decoder.run decoder "@"
+    --> Err [ NoLocal, NoDomain ]
+
+    Decoder.run decoder "local@middle@domain"
+    --> Err [ TooManyAtmark ]
+
+    Decoder.run decoder "local@middle@domain@"
+    --> Err [ TooManyAtmark ]
+
+    Result.map toString <| Decoder.run decoder "日本語@ドメイン"
+    --> Ok "日本語@ドメイン"
+
+    Result.map toString <| Decoder.run decoder "日本語＠ドメイン"
+    --> Ok "日本語@ドメイン"
+
+    Decoder.run decoder "日本語＠ドメ＠イン"
+    --> Err [ TooManyAtmark ]
+
+    Decoder.run decoder "日本語@ドメ＠イン"
+    --> Err [ TooManyAtmark ]
 
 -}
-fromString : String -> Maybe Email
-fromString str =
-    case String.split "@" <| replaceAtmark str of
-        [ "", _ ] ->
-            Nothing
+decoder : Decoder Invalid Email
+decoder =
+    Decoder.custom <|
+        \str ->
+            case String.split "@" <| replaceAtmark str of
+                [ "", "" ] ->
+                    Err [ NoLocal, NoDomain ]
 
-        [ _, "" ] ->
-            Nothing
+                [ "", _ ] ->
+                    Err [ NoLocal ]
 
-        [ local_, domain_ ] ->
-            Just <| Email local_ domain_
+                [ _, "" ] ->
+                    Err [ NoDomain ]
 
-        _ ->
-            Nothing
+                [ local_, domain_ ] ->
+                    Ok <| Email local_ domain_
+
+                [ _ ] ->
+                    Err [ NoAtmark ]
+
+                _ ->
+                    Err [ TooManyAtmark ]
 
 
 replaceAtmark : String -> String
@@ -98,8 +136,10 @@ replaceAtmark =
 
 {-| Pick up a `String` from an `Email` value.
 
-    Maybe.map toString <| fromString "local@domain"
-    --> Just "local@domain"
+    import Form.Decoder as Decoder
+
+    Result.map toString <| Decoder.run decoder "local@domain"
+    --> Ok "local@domain"
 
 -}
 toString : Email -> String
@@ -113,8 +153,10 @@ toString (Email local_ domain_) =
 
 {-| Pick up domain part of an `Email` value.
 
-    Maybe.map domain <| fromString "local@domain"
-    --> Just "domain"
+    import Form.Decoder as Decoder
+
+    Result.map domain <| Decoder.run decoder "local@domain"
+    --> Ok "domain"
 
 -}
 domain : Email -> String
@@ -124,8 +166,10 @@ domain (Email _ domain_) =
 
 {-| Pick up local part of an `Email` value.
 
-    Maybe.map local <| fromString "local@domain"
-    --> Just "local"
+    import Form.Decoder as Decoder
+
+    Result.map local <| Decoder.run decoder "local@domain"
+    --> Ok "local"
 
 -}
 local : Email -> String

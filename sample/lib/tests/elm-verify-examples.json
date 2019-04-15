@@ -3,6 +3,6 @@
   "tests":
   [ "Email"
   , "MobilePhone"
-  , "Decoder"
+  , "ZenDigit"
   ]
 }

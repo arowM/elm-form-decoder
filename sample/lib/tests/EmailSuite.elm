@@ -2,6 +2,7 @@ module EmailSuite exposing (suite)
 
 import Email
 import Expect
+import Form.Decoder as Decoder
 import Fuzz exposing (Fuzzer)
 import Test exposing (..)
 
@@ -9,12 +10,12 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "Email"
-        [ describe "`toString` after `fromString`"
+        [ describe "`toString` after decoding"
             [ fuzz email "is equals" <|
                 \str ->
-                    Email.fromString str
-                        |> Maybe.map Email.toString
-                        |> Expect.equal (Just str)
+                    Decoder.run Email.decoder str
+                        |> Result.map Email.toString
+                        |> Expect.equal (Ok str)
             ]
         ]
 

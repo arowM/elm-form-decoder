@@ -1,6 +1,7 @@
 module MobilePhoneSuite exposing (suite)
 
 import Expect
+import Form.Decoder as Decoder
 import Fuzz exposing (Fuzzer)
 import MobilePhone
 import Test exposing (..)
@@ -9,10 +10,10 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "MobilePhone"
-        [ describe "`toString` after `fromString`"
+        [ describe "`toString` after decoding"
             [ fuzz mobilePhone "is equals" <|
                 \str ->
-                    MobilePhone.fromString str
+                    Decoder.run MobilePhone.decoder str
                         |> Result.map (MobilePhone.toString { withHiphen = True })
                         |> Expect.equal (Ok str)
             ]
