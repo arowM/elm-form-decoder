@@ -1,6 +1,6 @@
 module Form.Decoder exposing
     ( Decoder
-    , decode
+    , run
     , required
     , optional
     , int
@@ -26,7 +26,7 @@ module Form.Decoder exposing
 
 # Decode functions
 
-@docs decode
+@docs run
 @docs required
 @docs optional
 
@@ -47,7 +47,7 @@ module Form.Decoder exposing
 @docs raise
 
 
-# Lower level functions
+# Common functions
 
 @docs map
 @docs map2
@@ -79,15 +79,15 @@ type Decoder err a
 
 {-| Basic decoder that decodes user input by given decoder.
 
-    decode (int "Invalid") "foo"
+    run (int "Invalid") "foo"
     --> Err [ "Invalid" ]
 
-    decode (int "Invalid") "34"
+    run (int "Invalid") "34"
     --> Ok 34
 
 -}
-decode : Decoder err a -> String -> Result (List err) a
-decode (Decoder f) a =
+run : Decoder err a -> String -> Result (List err) a
+run (Decoder f) a =
     f a
 
 
@@ -166,16 +166,16 @@ optional (Decoder f) ma =
 
 {-| Decoder into `Int`, raising `err` when a user input is invalid for an integer.
 
-    decode (int "Invalid") "foo"
+    run (int "Invalid") "foo"
     --> Err [ "Invalid" ]
 
-    decode (int "Invalid") "34"
+    run (int "Invalid") "34"
     --> Ok 34
 
-    decode (int "Invalid") "34.3"
+    run (int "Invalid") "34.3"
     --> Err [ "Invalid" ]
 
-    decode (int "Invalid") "34e3"
+    run (int "Invalid") "34e3"
     --> Err [ "Invalid" ]
 
 -}
@@ -186,16 +186,16 @@ int err =
 
 {-| Decoder into `Float`, raising `err` when a user input is invalid for an float.
 
-    decode (float "Invalid") "foo"
+    run (float "Invalid") "foo"
     --> Err [ "Invalid" ]
 
-    decode (float "Invalid") "34"
+    run (float "Invalid") "34"
     --> Ok 34
 
-    decode (float "Invalid") "34.3"
+    run (float "Invalid") "34.3"
     --> Ok 34.3
 
-    decode (float "Invalid") "34e3"
+    run (float "Invalid") "34e3"
     --> Ok 34000
 
 -}
@@ -247,16 +247,16 @@ If a user input is invalid for given validator, decoding fails.
             |> raise validator1
             |> raise validator2
 
-    decode myDecoder "foo"
+    run myDecoder "foo"
     --> Err [ Invalid ]
 
-    decode myDecoder "32"
+    run myDecoder "32"
     --> Err [ TooBig ]
 
-    decode myDecoder "2"
+    run myDecoder "2"
     --> Err [ TooSmall ]
 
-    decode myDecoder "3"
+    run myDecoder "3"
     --> Ok 3
 
 -}
@@ -270,7 +270,7 @@ raise v (Decoder f) =
 
 
 
--- Lower level functions
+-- Common functions
 
 
 {-| -}
@@ -343,4 +343,4 @@ andThen f (Decoder g) =
                     Err err
 
                 Ok x ->
-                    decode (f x) a
+                    run (f x) a
