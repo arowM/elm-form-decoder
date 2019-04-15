@@ -5,6 +5,7 @@ module Form.Decoder exposing
     , optional
     , int
     , float
+    , succeed
     , custom
     , raise
     , map
@@ -14,6 +15,7 @@ module Form.Decoder exposing
     , map5
     , mapError
     , andThen
+    , mapResult
     )
 
 {-| Main module that exports primitive decoders and helper functions for form decoding.
@@ -35,6 +37,7 @@ module Form.Decoder exposing
 
 @docs int
 @docs float
+@docs succeed
 
 
 # Custom decoders
@@ -56,6 +59,11 @@ module Form.Decoder exposing
 @docs map5
 @docs mapError
 @docs andThen
+
+
+# Advanced functions
+
+@docs mapResult
 
 -}
 
@@ -162,6 +170,17 @@ optional (Decoder f) ma =
 
 
 -- Primitive decoders
+
+
+{-| Primitive decoder that always returns user input as it is.
+
+    run succeed "foo"
+    --> Ok "foo"
+
+-}
+succeed : Decoder err String
+succeed =
+    custom <| Ok
 
 
 {-| Decoder into `Int`, raising `err` when a user input is invalid for an integer.
@@ -344,3 +363,47 @@ andThen f (Decoder g) =
 
                 Ok x ->
                     run (f x) a
+
+
+
+-- Advanced functions
+
+
+{-|
+
+    import Form.Validator as Validator
+
+    type Error
+        = InvalidInt
+        | TooLong
+        | TooBig
+
+    advancedDecoder : Decoder Error Int
+    advancedDecoder =
+        succeed
+            |> raise (Validator.maxLength TooLong 5)
+            |> mapResult (run (int InvalidInt))
+            |> raise (Validator.maxBound TooBig 300)
+
+    run advancedDecoder "foooooo"
+    --> Err [ TooLong ]
+
+    run advancedDecoder "foo"
+    --> Err [ InvalidInt ]
+
+    run advancedDecoder "1000000"
+    --> Err [ TooLong ]
+
+    run advancedDecoder "500"
+    --> Err [ TooBig ]
+
+    run advancedDecoder "200"
+    --> Ok 200
+
+-}
+mapResult : (a -> Result (List err) b) -> Decoder err a -> Decoder err b
+mapResult f decoder =
+    custom <|
+        \a ->
+            run decoder a
+                |> Result.andThen f
