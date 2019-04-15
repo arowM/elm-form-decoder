@@ -65,7 +65,6 @@ It assures that input string follows rules bellow.
 
 Usage:
 
-
     import Form.Decoder as Decoder
 
     Result.map toString <| Decoder.run decoder "local@domain"

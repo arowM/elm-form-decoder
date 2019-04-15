@@ -7,7 +7,7 @@ module Form.Decoder exposing
     , float
     , succeed
     , custom
-    , raise
+    , assert
     , map
     , map2
     , map3
@@ -47,7 +47,7 @@ module Form.Decoder exposing
 
 # Validations
 
-@docs raise
+@docs assert
 
 
 # Common functions
@@ -263,8 +263,8 @@ If a user input is invalid for given validator, decoding fails.
     myDecoder : Decoder Error Int
     myDecoder =
         int Invalid
-            |> raise validator1
-            |> raise validator2
+            |> assert validator1
+            |> assert validator2
 
     run myDecoder "foo"
     --> Err [ Invalid ]
@@ -279,8 +279,8 @@ If a user input is invalid for given validator, decoding fails.
     --> Ok 3
 
 -}
-raise : Validator a err -> Decoder err a -> Decoder err a
-raise v (Decoder f) =
+assert : Validator a err -> Decoder err a -> Decoder err a
+assert v (Decoder f) =
     custom <|
         \a ->
             Result.andThen
@@ -381,9 +381,9 @@ andThen f (Decoder g) =
     advancedDecoder : Decoder Error Int
     advancedDecoder =
         succeed
-            |> raise (Validator.maxLength TooLong 5)
+            |> assert (Validator.maxLength TooLong 5)
             |> mapResult (run (int InvalidInt))
-            |> raise (Validator.maxBound TooBig 300)
+            |> assert (Validator.maxBound TooBig 300)
 
     run advancedDecoder "foooooo"
     --> Err [ TooLong ]

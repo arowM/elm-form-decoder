@@ -115,9 +115,9 @@ decoder : Decoder Invalid MobilePhone
 decoder =
     Decoder.succeed
         |> Decoder.map normalize
-        |> Decoder.raise invalidChar
+        |> Decoder.assert invalidChar
         |> Decoder.map raw
-        |> Decoder.raise
+        |> Decoder.assert
             (Validator.concat
                 [ invalidPrefix
                 , invalidLength
