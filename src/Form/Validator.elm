@@ -74,6 +74,13 @@ type Validator a err
 
 
 {-| Run validator to an actual value.
+
+    run (maxBound "Too large" 100) 200
+    --> Err [ "Too large" ]
+
+    run (maxBound "Too large" 100) 50
+    --> Ok ()
+
 -}
 run : Validator a err -> a -> Result (List err) ()
 run (Validator f) a =
