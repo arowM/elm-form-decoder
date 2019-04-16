@@ -1,11 +1,14 @@
-module Atom exposing
+module Layout exposing
     ( row
     , wrap
     , wrap2
     )
 
+{-| Atomic views for layout.
+-}
+
 import Html exposing (Html, div)
-import Layout
+import Mixin.Layout as Layout
 
 
 {-| Wrap children with half padding.
@@ -24,6 +27,15 @@ wrap2 : List (Html msg) -> Html msg
 wrap2 children =
     div
         [ Layout.wrap2 ]
+        children
+
+
+{-| Outer for `wrap2`
+-}
+outer2 : List (Html msg) -> Html msg
+outer2 children =
+    div
+        [ Layout.outer2 ]
         children
 
 

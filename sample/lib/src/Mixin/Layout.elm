@@ -1,4 +1,4 @@
-module Layout exposing
+module Mixin.Layout exposing
     ( alignBaseline
     , alignCenter
     , alignEnd
@@ -16,11 +16,13 @@ module Layout exposing
     , onPC
     , onSP
     , onTablet
+    , outer2
     , row
     , wrap
     , wrap2
     )
 
+import Css
 import Html exposing (Attribute)
 import Html.Attributes as Attributes
 
@@ -30,12 +32,19 @@ wrap =
     class "wrap"
 
 
+outer : Attribute msg
+outer =
+    wrap
+
+
 wrap2 : Attribute msg
 wrap2 =
-    classList
-        [ ( "wrap", True )
-        , ( "quarter", True )
-        ]
+    class "wrap quarter"
+
+
+outer2 : Attribute msg
+outer2 =
+    class "outer quarter"
 
 
 row : Attribute msg
@@ -136,11 +145,5 @@ onSP =
 It handles generated class name by CSS modules.
 -}
 class : String -> Attribute msg
-class name =
-    Attributes.class <| "layout__" ++ name
-
-
-classList : List ( String, Bool ) -> Attribute msg
-classList ps =
-    Attributes.classList <|
-        List.map (\( name, b ) -> ( "layout__" ++ name, b )) ps
+class =
+    Css.classWithPrefix "layout__"
