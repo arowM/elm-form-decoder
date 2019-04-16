@@ -4,5 +4,6 @@
   [ "Email"
   , "MobilePhone"
   , "ZenDigit"
+  , "Atom.Input"
   ]
 }
