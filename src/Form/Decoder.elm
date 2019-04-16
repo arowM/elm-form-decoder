@@ -24,6 +24,7 @@ module Form.Decoder exposing
     , top
     , mapError
     , andThen
+    , with
     , optional
     , required
     )
@@ -86,6 +87,7 @@ module Form.Decoder exposing
 # Advanced
 
 @docs andThen
+@docs with
 @docs optional
 @docs required
 
@@ -741,3 +743,71 @@ optional (Decoder f) =
 
                 Just a ->
                     Result.map Just <| f a
+
+
+{-| Advanced function to build up case-sensitive decoder.
+
+    type alias Form =
+        { selection : Selection
+        , int : String
+        , str : String
+        }
+
+    type Selection
+        = IntField
+        | StrField
+
+
+    type Selected
+        = SelectInt Int
+        | SelectStr String
+
+    type Error
+        = TooShort
+        | InvalidInt
+
+    myDecoder : Decoder Form Error Selected
+    myDecoder =
+        with <| \form ->
+            case form.selection of
+                IntField ->
+                    map SelectInt <|
+                        lift .int intDecoder
+                StrField ->
+                    map SelectStr <|
+                        lift .str strDecoder
+
+    intDecoder : Decoder String Error Int
+    intDecoder =
+        int InvalidInt
+
+    strDecoder : Decoder String Error String
+    strDecoder =
+        succeed
+            |> assert (minLength TooShort 5)
+
+
+    run myDecoder <| Form IntField "foo" "bar"
+    --> Err [ InvalidInt ]
+
+    run myDecoder <| Form StrField "foo" "bar"
+    --> Err [ TooShort ]
+
+    run myDecoder <| Form IntField "23" "bar"
+    --> Ok <| SelectInt 23
+
+    run myDecoder <| Form StrField "23" "bar"
+    --> Err [ TooShort ]
+
+    run myDecoder <| Form IntField "foo" "barrrrr"
+    --> Err [ InvalidInt ]
+
+    run myDecoder <| Form StrField "foo" "barrrrr"
+    --> Ok <| SelectStr "barrrrr"
+
+-}
+with : (i -> Decoder i err a) -> Decoder i err a
+with f =
+    custom <|
+        \a ->
+            run (f a) a
