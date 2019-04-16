@@ -5,10 +5,15 @@ module Layout exposing
     )
 
 {-| Atomic views for layout.
+
+@docs row
+@docs wrap
+@docs wrap2
+
 -}
 
 import Html exposing (Html, div)
-import Mixin.Layout as Layout
+import Layout.Mixin as Mixin
 
 
 {-| Wrap children with half padding.
@@ -17,7 +22,7 @@ See `StyleGuide.elm` for actual usage.
 wrap : List (Html msg) -> Html msg
 wrap children =
     div
-        [ Layout.wrap ]
+        [ Mixin.wrap ]
         children
 
 
@@ -26,7 +31,7 @@ wrap children =
 wrap2 : List (Html msg) -> Html msg
 wrap2 children =
     div
-        [ Layout.wrap2 ]
+        [ Mixin.wrap2 ]
         children
 
 
@@ -35,7 +40,7 @@ wrap2 children =
 outer2 : List (Html msg) -> Html msg
 outer2 children =
     div
-        [ Layout.outer2 ]
+        [ Mixin.outer2 ]
         children
 
 
@@ -44,5 +49,5 @@ outer2 children =
 row : List (Html msg) -> Html msg
 row children =
     div
-        [ Layout.row ]
+        [ Mixin.row ]
         children
