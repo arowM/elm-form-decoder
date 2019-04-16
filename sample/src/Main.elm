@@ -1,16 +1,16 @@
 module Main exposing (main)
 
-import Atom
 import Browser
 import Css
+import Goat exposing (Goat)
 import Html exposing (Attribute, Html, button, div, text)
 import Html.Attributes as Attributes
-import Input exposing (Input)
+import Atom.Input as Input exposing (Input)
 import Layout
+import Layout.Mixin as Mixin
 
 
 
--- import Layout
 -- App
 
 
@@ -25,13 +25,13 @@ main =
 
 
 type alias Model =
-    { form : Form
+    { form : Goat.Form
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { form = form_init
+    ( { form = Goat.init
       }
     , Cmd.none
     )
@@ -45,18 +45,66 @@ type
     | ChangeHorns String
     | ChangeEmail String
     | ChangePhone String
+    | ChangeMessages String
+    | ToggleContactType Goat.ContactType
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ form } as model) =
     let
-        ( form, cmd ) =
-            form_update msg model.form
+        setForm : Goat.Form -> Model
+        setForm a = { model | form = a }
     in
-    ( { form = form
-      }
-    , cmd
-    )
+    case msg of
+        ChangeName name ->
+            ( setForm
+                { form
+                  | name = Input.fromString name
+                }
+            , Cmd.none
+            )
+
+        ChangeAge age ->
+            ( setForm { form
+                | age = Input.fromString age
+              }
+            , Cmd.none
+            )
+
+        ChangeHorns horns ->
+            ( setForm { form
+                | horns = Input.fromString horns
+              }
+            , Cmd.none
+            )
+
+        ChangeEmail email ->
+            ( setForm { form
+                | email = Input.fromString email
+              }
+            , Cmd.none
+            )
+
+        ChangePhone phone ->
+            ( setForm { form
+                | phone = Input.fromString phone
+              }
+            , Cmd.none
+            )
+
+        ChangeMessages message ->
+            ( setForm { form
+                | message = Input.fromString message
+              }
+            , Cmd.none
+            )
+
+        ToggleContactType ctype ->
+            ( setForm { form
+                | contactType = ctype
+                }
+            , Cmd.none
+            )
 
 
 view : Model -> Html Msg
@@ -65,8 +113,8 @@ view model =
         [ class "wrapper" ]
         [ background
         , div
-            [ Layout.row
-            , Layout.justifyCenter
+            [ Mixin.row
+            , Mixin.justifyCenter
             , class "body"
             ]
             [ div
@@ -101,65 +149,7 @@ background =
 -- Form
 
 
-type alias Form =
-    { name : Input
-    , age : Input
-    , horns : Input
-    , email : Input
-    , phone : Input
-    }
-
-
-form_init : Form
-form_init =
-    { name = Input.init
-    , age = Input.init
-    , horns = Input.init
-    , email = Input.init
-    , phone = Input.init
-    }
-
-
-form_update : Msg -> Form -> ( Form, Cmd Msg )
-form_update msg form =
-    case msg of
-        ChangeName name ->
-            ( { form
-                | name = Input.fromString name
-              }
-            , Cmd.none
-            )
-
-        ChangeAge age ->
-            ( { form
-                | age = Input.fromString age
-              }
-            , Cmd.none
-            )
-
-        ChangeHorns horns ->
-            ( { form
-                | horns = Input.fromString horns
-              }
-            , Cmd.none
-            )
-
-        ChangeEmail email ->
-            ( { form
-                | email = Input.fromString email
-              }
-            , Cmd.none
-            )
-
-        ChangePhone phone ->
-            ( { form
-                | phone = Input.fromString phone
-              }
-            , Cmd.none
-            )
-
-
-form_view : Form -> Html Msg
+form_view : Goat.Form -> Html Msg
 form_view form =
     div
         [ class "form"
@@ -168,89 +158,79 @@ form_view form =
             [ Attributes.novalidate True
             , class "form_body"
             ]
-            [ Atom.row
-                [ form_label "Name"
-                , form_control
-                    [ form_description "What's your name?"
-                    , form_subdescription "(required)"
-                    , Atom.wrap2
+            [ Layout.row
+                [ Goat.label "Name"
+                , Goat.control
+                    [ Goat.description "What's your name?"
+                    , Goat.subdescription "(required)"
+                    , Layout.wrap2
                         [ Input.view
-                            (Input.config
-                                { placeholder = "Sakura-chan"
-                                , type_ = "text"
-                                , onChange = ChangeName
-                                }
-                            )
+                            { placeholder = "Sakura-chan"
+                            , type_ = "text"
+                            , onChange = ChangeName
+                            }
                             form.name
                         ]
                     ]
                 ]
-            , Atom.row
-                [ form_label "Age"
-                , form_control
-                    [ form_description "How old are you? [years old]"
-                    , form_subdescription "(optional)"
-                    , Atom.wrap2
+            , Layout.row
+                [ Goat.label "Age"
+                , Goat.control
+                    [ Goat.description "How old are you? [years old]"
+                    , Goat.subdescription "(optional)"
+                    , Layout.wrap2
                         [ Input.view
-                            (Input.config
-                                { placeholder = "2"
-                                , type_ = "number"
-                                , onChange = ChangeAge
-                                }
-                            )
+                            { placeholder = "2"
+                            , type_ = "number"
+                            , onChange = ChangeAge
+                            }
                             form.age
                         ]
                     ]
                 ]
-            , Atom.row
-                [ form_label "Horns"
-                , form_control
-                    [ form_description "How many horns do you have?"
-                    , form_subdescription "(required)"
-                    , Atom.wrap2
+            , Layout.row
+                [ Goat.label "Horns"
+                , Goat.control
+                    [ Goat.description "How many horns do you have?"
+                    , Goat.subdescription "(required)"
+                    , Layout.wrap2
                         [ Input.view
-                            (Input.config
-                                { placeholder = "0"
-                                , type_ = "number"
-                                , onChange = ChangeHorns
-                                }
-                            )
+                            { placeholder = "0"
+                            , type_ = "number"
+                            , onChange = ChangeHorns
+                            }
                             form.horns
                         ]
                     ]
                 ]
-            , Atom.row
-                [ form_label "Contact"
-                , form_control
-                    [ form_subdescription "(Either of email or phone number is required)"
-                    , Atom.row
-                        [ form_label "Email"
-                        , form_control
-                            [ form_description "Email address to contact you."
-                            , Atom.wrap2
+            , Layout.row
+                [ Goat.label "Contact"
+                , Goat.control
+                    [ Goat.subdescription "(Either of email or phone number is required)"
+                    , Layout.row
+                        [ Goat.label "Email"
+                        , Goat.control
+                            [ Goat.description "Email address to contact you."
+                            , Layout.wrap2
                                 [ Input.view
-                                    (Input.config
-                                        { placeholder = "you-goat-a-mail@example.com"
-                                        , type_ = "email"
-                                        , onChange = ChangeEmail
-                                        }
-                                    )
+                                    { placeholder = "you-goat-a-mail@example.com"
+                                    , type_ = "email"
+                                    , onChange = ChangeEmail
+                                    }
                                     form.email
                                 ]
                             ]
                         ]
-                    , Atom.row
-                        [ form_label "Phone number"
-                        , form_control
-                            [ form_description "Phone number to contact you."
-                            , Atom.wrap2
+                    , Layout.row
+                        [ Goat.label "Phone number"
+                        , Goat.control
+                            [ Goat.description "Phone number to contact you."
+                            , Layout.wrap2
                                 [ Input.view
-                                    (Input.config
-                                        { placeholder = "090-0000-0000"
-                                        , type_ = "tel"
-                                        , onChange = ChangePhone
-                                        }
-                                    )
+                                    { placeholder = "090-0000-0000"
+                                    , type_ = "tel"
+                                    , onChange = ChangePhone
+                                    }
                                     form.phone
                                 ]
                             ]
@@ -272,39 +252,6 @@ form_view form =
         ]
 
 
-form_label : String -> Html msg
-form_label str =
-    div
-        [ class "form_label"
-        ]
-        [ text str
-        ]
-
-
-form_control : List (Html msg) -> Html msg
-form_control children =
-    div
-        [ class "form_control"
-        ]
-        children
-
-
-form_description : String -> Html msg
-form_description str =
-    div
-        [ class "form_description"
-        ]
-        [ text str
-        ]
-
-
-form_subdescription : String -> Html msg
-form_subdescription str =
-    div
-        [ class "form_subdescription"
-        ]
-        [ text str
-        ]
 
 
 

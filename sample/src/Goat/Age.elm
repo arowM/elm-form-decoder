@@ -1,14 +1,21 @@
-module Form.Age exposing
-    ( Error(..)
+module Goat.Age exposing
+    ( Age
+    , Error(..)
+    , toString
     , decoder
     , errorField
-    , validator
     )
 
-import Decoder
-import Input exposing (Input)
-import Validator exposing (..)
+import Atom.Input exposing (Input)
+import Form.Decoder as Decoder exposing (Decoder)
+import ZenDigit
 
+type Age
+    = Age Int
+
+
+toString : Age -> String
+toString (Age n) = String.fromInt n
 
 type Error
     = Empty
@@ -37,12 +44,8 @@ errorField err =
             ]
 
 
-validator : Validator Input Error
-validator =
-    Input.validator decoder <|
-        minBound Negative 0
-
-
-decoder : String -> Result Error Int
+decoder : Decoder String Error Age
 decoder =
-    Decoder.int InvalidInt
+    ZenDigit.intDecoder InvalidInt
+        |> Decoder.assert (Decoder.minBound Negative 0)
+        |> Decoder.map Age

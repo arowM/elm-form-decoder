@@ -1,6 +1,6 @@
 module StyleGuide exposing (main)
 
-import Atom
+import Layout
 import Browser
 import Html exposing (Attribute, Html, div, text)
 import Html.Attributes as Attributes exposing (href)
@@ -58,7 +58,7 @@ update _ model =
 
 view : Model -> Html Msg
 view _ =
-    Atom.wrap
+    Layout.wrap
         [ title "Style guide"
         , chapterInput
         , chapterLayout
@@ -67,7 +67,7 @@ view _ =
 
 title : String -> Html msg
 title str =
-    Atom.wrap
+    Layout.wrap
         [ div
             [ class "title"
             ]
@@ -84,12 +84,12 @@ chapterInput =
 
 """
         , hashedSection "Default style"
-        , Atom.wrap
+        , Layout.wrap
             [ div
                 [ Layout.row
                 , Layout.alignCenter
                 ]
-                [ Atom.wrap
+                [ Layout.wrap
                     [ text "Original"
                     ]
                 , div
@@ -102,7 +102,7 @@ chapterInput =
                 [ Layout.row
                 , Layout.alignCenter
                 ]
-                [ Atom.wrap
+                [ Layout.wrap
                     [ text "Expanded"
                     ]
                 , div
@@ -114,7 +114,7 @@ chapterInput =
                 ]
             ]
         , hashedSection "Varidations"
-        , Atom.wrap
+        , Layout.wrap
             [ input_row []
             , input_row [ Input.decorate "size1" ]
             , input_row [ Input.decorate "size2" ]
@@ -125,7 +125,7 @@ chapterInput =
 
 input_row : List (Attribute Msg) -> Html Msg
 input_row attrs =
-    Atom.row
+    Layout.row
         [ div
             ( Input.decorate "default" :: Layout.wrap :: attrs )
             [ input
@@ -187,7 +187,7 @@ basicBlock =
 }
 ```
 """
-        , Atom.wrap
+        , Layout.wrap
             [ basicBlock
             ]
         , markdown """
@@ -212,44 +212,44 @@ highBlock =
 }
 ```
 """
-        , Atom.wrap
+        , Layout.wrap
             [ highBlock
             ]
         , hashedSection "Align Horizontally"
         , markdown """
 
-Use `Atom.row` to align items horizontally.
+Use `Layout.row` to align items horizontally.
 
-**Example 1.** Wrapping only one item with `Atom.row` makes the item width minimum.
+**Example 1.** Wrapping only one item with `Layout.row` makes the item width minimum.
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ basicBlock
         ]
 ```
 
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ basicBlock
                 ]
             ]
         , markdown """
 
-**Example 2.** Wrapping items with `Atom.row` aligns them left-justified and stretch vertically.
+**Example 2.** Wrapping items with `Layout.row` aligns them left-justified and stretch vertically.
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ basicBlock
         , highBlock
         ]
 ```
 
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ basicBlock
                 , highBlock
                 ]
@@ -260,15 +260,15 @@ view =
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ basicBlock
         , highBlock
         , div [] [ basicBlock ]
         ]
 ```
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ basicBlock
                 , highBlock
                 , div [] [ basicBlock ]
@@ -280,7 +280,7 @@ view =
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ div
             [ Layout.expanded ]
             [ basicBlock ]
@@ -289,8 +289,8 @@ view =
         ]
 ```
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ div
                     [ Layout.expanded ]
                     [ basicBlock ]
@@ -304,7 +304,7 @@ view =
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ div
             [ Layout.fullHeight
             , Layout.expanded
@@ -315,8 +315,8 @@ view =
         ]
 ```
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ div
                     [ Layout.fullHeight
                     , Layout.expanded
@@ -328,15 +328,15 @@ view =
             ]
         , markdown """
 
-**Example 6.** You can nest `Atom.row`.
+**Example 6.** You can nest `Layout.row`.
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ div
             [ Layout.expanded
             ]
-            [ Atom.row
+            [ Layout.row
                 [ basicBlock
                 , highBlock
                 ]
@@ -345,12 +345,12 @@ view =
         ]
 ```
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ div
                     [ Layout.expanded
                     ]
-                    [ Atom.row
+                    [ Layout.row
                         [ basicBlock
                         , highBlock
                         ]
@@ -362,7 +362,7 @@ view =
         , markdown """
 
 To control alignments more preceisely, use `Layout.row`.
-In fact, `Atom.row = div [Laytou.row]`.
+In fact, `Layout.row = div [Laytou.row]`.
 
 The `Layout` module provides functions to manage alignments:
 
@@ -384,7 +384,7 @@ view =
 ```
 
 """
-        , Atom.wrap
+        , Layout.wrap
             [ div
                 [ Layout.row
                 , Layout.justifyEnd
@@ -398,7 +398,7 @@ view =
 
 ```elm
 view =
-    Atom.row
+    Layout.row
         [ highBlock
         , basicBlock
         , div
@@ -417,8 +417,8 @@ view =
 ```
 
 """
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ highBlock
                 , basicBlock
                 , div
@@ -470,26 +470,26 @@ combinedBlock_ =
 There are no problem because both `highBlock` and `basicBlock` are complete elements.
 Combining complete elements results to be another complete element.
 """
-        , Atom.wrap
+        , Layout.wrap
             [ combinedBlock_
             ]
         , markdown """
 
-For the sake of fifth rule, it should be better to wrap it with `Atom.wrap`.
+For the sake of fifth rule, it should be better to wrap it with `Layout.wrap`.
 
 > Reusable views except atomic views SHOULD be incomplete
 
-The `Atom.wrap` sets half-width padding around its children.
+The `Layout.wrap` sets half-width padding around its children.
 
 ```elm
 combinedBlock : Html msg
 combinedBlock =
-    Atom.wrap
+    Layout.wrap
         [ combinedBlock_
         ]
 ```
 """
-        , Atom.wrap
+        , Layout.wrap
             [ combinedBlock
             ]
         , markdown """
@@ -501,13 +501,13 @@ Next, let's define an incomplete element named `incompleteBasicBlock` as follows
 ```elm
 incompleteBasicBlock : Html msg
 incompleteBasicBlock =
-    Atom.wrap
+    Layout.wrap
         [ basicBlock
         ]
 ```
 
 """
-        , Atom.wrap
+        , Layout.wrap
             [ incompleteBasicBlock
             ]
         , markdown """
@@ -515,20 +515,20 @@ incompleteBasicBlock =
 Then can we combine an `incompleteBasicBlock` and a `highBlock`?
 No, because their completeness is not same.
 
-So one of the way to combine them is to make `highBlock` incomple by wrapping with `Atom.wrap`.
+So one of the way to combine them is to make `highBlock` incomple by wrapping with `Layout.wrap`.
 
 ```elm
 combinedBlockWithSpaces : Html msg
 combinedBlockWithSpaces =
     div []
         [ incompleteBasicBlock
-        , Atom.wrap
+        , Layout.wrap
             [ highBlock
             ]
         ]
 ```
 """
-        , Atom.wrap
+        , Layout.wrap
             [ combinedBlockWithSpaces
             ]
         , markdown """
@@ -558,7 +558,7 @@ The `outerFrame` function cannot take an incomplete element as its argument beca
 
 > An incomplete element CAN NOT have visible border around it
 
-We have to wrap incomplete elements with `Atom.wrap` before passing to `outerFrame`, or only complete elements are acceptable.
+We have to wrap incomplete elements with `Layout.wrap` before passing to `outerFrame`, or only complete elements are acceptable.
 
 OK. Let's combine them all.
 
@@ -568,8 +568,8 @@ view =
         [ outerFrame
             [ basicBlock
             ]
-        , Atom.wrap
-            [ Atom.row
+        , Layout.wrap
+            [ Layout.row
                 [ combinedBlock
                 , div
                     [ Layout.fullHeight
@@ -579,20 +579,20 @@ view =
                     ]
                 , combinedBlockWithSpaces
                 ]
-            , Atom.wrap
+            , Layout.wrap
                 [ highBlock
                 ]
             ]
         ]
 ```
 """
-        , Atom.wrap
+        , Layout.wrap
             [ outerFrame
                 [ outerFrame
                     [ basicBlock
                     ]
-                , Atom.wrap
-                    [ Atom.row
+                , Layout.wrap
+                    [ Layout.row
                         [ combinedBlock
                         , div
                             [ Layout.fullHeight
@@ -703,7 +703,7 @@ hashedSection label =
         ]
 
 
-{-| Same as `Atom.wrap`, shows boundary.
+{-| Same as `Layout.wrap`, shows boundary.
 -}
 wrap : List (Html msg) -> Html msg
 wrap children =

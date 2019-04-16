@@ -1,0 +1,38 @@
+@import 'variables';
+
+.label {
+  padding: $half-padding;
+  padding-bottom: 0;
+  width: 10em;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.control {
+  flex: 1;
+  padding: $quarter-padding;
+  min-width: 16em;
+
+  .label {
+    padding: $quarter-padding;
+    font-size: 1em;
+  }
+
+  .control {
+    padding: 0;
+  }
+}
+
+.description {
+  padding: $quarter-padding;
+
+  ~ .subdescription {
+    padding-top: 0;
+  }
+}
+
+.subdescription {
+  font-size: 0.9em;
+  padding: $quarter-padding;
+  color: $notable-color;
+}

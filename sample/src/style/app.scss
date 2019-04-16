@@ -54,47 +54,10 @@
     border-radius: 0.2em;
     box-shadow: 0 0 8px 8px rgba($background-color0, 1);
   }
-
-  &_label {
-    padding: $half-padding;
-    padding-bottom: 0;
-    width: 10em;
-    font-size: 1.1em;
-    font-weight: 600;
-  }
-
-  &_control {
-    flex: 1;
-    padding: $quarter-padding;
-    min-width: 16em;
-
-    .form_label {
-      padding: $quarter-padding;
-      font-size: 1em;
-    }
-
-    .form_control {
-      padding: 0;
-    }
-  }
-
-  &_description {
-    padding: $quarter-padding;
-
-    ~ .form_subdescription {
-      padding-top: 0;
-    }
-  }
-
-  &_subdescription {
-    font-size: 0.9em;
-    padding: $quarter-padding;
-    color: $notable-color;
-  }
 }
 
 /* ==============
- *  Form
+ *  Button
  * ============== */
 
 .button {

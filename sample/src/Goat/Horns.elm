@@ -1,14 +1,21 @@
-module Form.Horns exposing
-    ( Error(..)
+module Goat.Horns exposing
+    ( Horns
+    , Error(..)
+    , toString
     , decoder
     , errorField
-    , validator
     )
 
-import Decoder
-import Input exposing (Input)
-import Validator exposing (..)
+import Atom.Input exposing (Input)
+import Form.Decoder as Decoder exposing (Decoder)
+import ZenDigit
 
+type Horns =
+    Horns Int
+
+
+toString : Horns -> String
+toString (Horns n) = String.fromInt n
 
 type Error
     = Empty
@@ -43,8 +50,9 @@ errorField err =
             ]
 
 
-decoder : Decoder Error Int
+decoder : Decoder String Error Horns
 decoder =
-    Decoder.int InvalidInt
-        |> raise (maxBound TooMany 2)
-        |> raise (minBound Negative 0)
+    ZenDigit.intDecoder InvalidInt
+        |> Decoder.assert (Decoder.maxBound TooMany 2)
+        |> Decoder.assert (Decoder.minBound Negative 0)
+        |> Decoder.map Horns

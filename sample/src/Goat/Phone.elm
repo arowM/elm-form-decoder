@@ -1,14 +1,20 @@
-module Form.Phone exposing
-    ( Error(..)
+module Goat.Phone exposing
+    ( Phone
+    , Error(..)
+    , toString
     , decoder
     , errorField
-    , validator
     )
 
-import Input exposing (Input)
-import MobilePhone exposing (MobilePhone)
-import Validator exposing (..)
+import Atom.Input exposing (Input)
+import Form.Decoder as Decoder exposing (Decoder)
+import MobilePhone
 
+
+type alias Phone = MobilePhone.MobilePhone
+
+toString : Phone -> String
+toString = MobilePhone.toString { withHiphen = True }
 
 type Error
     = Empty
@@ -41,12 +47,9 @@ errorField err =
             ]
 
 
-validator : Validator Input Error
-validator =
-    Input.validator decoder <|
-        succeed
 
-
-decoder : String -> Result Error MobilePhone
+decoder : Decoder String Error Phone
 decoder =
-    Result.mapError Invalid << MobilePhone.fromString
+    Decoder.succeed
+        |> Decoder.assert (Decoder.minLength Empty 1)
+        |> Decoder.andThen (\_ -> Decoder.mapError Invalid MobilePhone.decoder)

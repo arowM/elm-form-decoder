@@ -1,6 +1,7 @@
 require('../style/reset.scss');
 require('../style/layout.scss');
 require('../style/app.scss');
+require('../style/form.scss');
 require('../style/input.scss');
 
 const { Elm } = require('../Main.elm');

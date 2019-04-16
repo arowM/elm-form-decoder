@@ -2,7 +2,6 @@
     "type": "application",
     "source-directories": [
         "src",
-        "../src",
         "lib/src"
     ],
     "elm-version": "0.19.0",
