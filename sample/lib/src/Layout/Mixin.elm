@@ -16,10 +16,11 @@ module Layout.Mixin exposing
     , onPC
     , onSP
     , onTablet
-    , outer2
     , row
     , wrap
+    , outer
     , wrap2
+    , outer2
     )
 
 {-| Mixins for layout.
@@ -41,17 +42,16 @@ module Layout.Mixin exposing
 @docs onPC
 @docs onSP
 @docs onTablet
-@docs outer2
 @docs row
 @docs wrap
+@docs outer
 @docs wrap2
+@docs outer2
 
 -}
 
-
 import Css
 import Html exposing (Attribute)
-import Html.Attributes as Attributes
 
 
 {-| -}

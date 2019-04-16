@@ -2,6 +2,7 @@ module Layout exposing
     ( row
     , wrap
     , wrap2
+    , outer2
     )
 
 {-| Atomic views for layout.
@@ -9,6 +10,7 @@ module Layout exposing
 @docs row
 @docs wrap
 @docs wrap2
+@docs outer2
 
 -}
 

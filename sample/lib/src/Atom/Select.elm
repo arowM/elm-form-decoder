@@ -7,6 +7,8 @@ module Atom.Select exposing
     , close
     , Config
     , view
+    , Msg(..)
+    , update
     , decode
     , optional
     , required
@@ -33,6 +35,12 @@ module Atom.Select exposing
 
 @docs Config
 @docs view
+
+
+# Internal messages
+
+@docs Msg
+@docs update
 
 
 # Decoders
@@ -111,26 +119,24 @@ close (Select a) =
         }
 
 
-{-| Toggle open/close of select box.
--}
-toggle : Select a -> Select a
-toggle (Select a) =
-    Select
-        { a
-            | open = not a.open
-        }
-
-
 
 -- Msg
 
 
+{-|
+
+  - Open -- On open options
+  - Close -- On close options
+  - Change -- On change selected value
+
+-}
 type Msg a
     = Open
     | Close
     | Change (Maybe a)
 
 
+{-| -}
 update : (Msg a -> msg) -> (Select a -> model) -> Msg a -> Select a -> ( model, Cmd msg )
 update toMsg toModel msg (Select model) =
     Tuple.mapBoth
@@ -274,8 +280,8 @@ optional =
     import Form.Decoder as Decoder exposing (Decoder)
 
     type alias Form =
-        { field1 : Selected String
-        , field2 : Selected String
+        { field1 : Select String
+        , field2 : Select String
         }
 
     type alias Decoded =
