@@ -48,11 +48,11 @@ module Form.Decoder exposing
 @docs int
 @docs float
 @docs succeed
+@docs fail
 
 
 # Primitive validators
 
-@docs fail
 @docs minBound
 @docs maxBound
 @docs minLength
@@ -146,6 +146,26 @@ succeed =
     custom <| Ok
 
 
+{-| Primitive decoder which always results to invalid.
+
+    run (fail "error") "foo"
+    --> Err [ "error" ]
+
+    run (fail "error") <| Just 34
+    --> Err [ "error" ]
+
+    run (when (\n -> n < 0) <| fail "error") -1
+    --> Err [ "error" ]
+
+    run (when (\n -> n < 0) <| fail "error") 0
+    --> Ok ()
+
+-}
+fail : err -> Decoder input err a
+fail err =
+    custom <| \_ -> Err [ err ]
+
+
 {-| Decoder into `Int`, raising `err` when a user input is invalid for an integer.
 
     run (int "Invalid") "foo"
@@ -221,26 +241,6 @@ custom =
 
 
 -- Primitive validators
-
-
-{-| Primitive validator which always results to invalid.
-
-    run (fail "error") "foo"
-    --> Err [ "error" ]
-
-    run (fail "error") <| Just 34
-    --> Err [ "error" ]
-
-    run (when (\n -> n < 0) <| fail "error") -1
-    --> Err [ "error" ]
-
-    run (when (\n -> n < 0) <| fail "error") 0
-    --> Ok ()
-
--}
-fail : err -> Validator a err
-fail err =
-    custom <| \_ -> Err [ err ]
 
 
 {-| Primitive validator limiting by minimum bound.
@@ -748,7 +748,7 @@ optional (Decoder f) =
 {-| Advanced function to build up case-sensitive decoder.
 
     type alias Form =
-        { selection : Selection
+        { selection : Maybe Selection
         , int : String
         , str : String
         }
@@ -765,17 +765,20 @@ optional (Decoder f) =
     type Error
         = TooShort
         | InvalidInt
+        | NoSelection
 
     myDecoder : Decoder Form Error Selected
     myDecoder =
         with <| \form ->
             case form.selection of
-                IntField ->
+                Just IntField ->
                     map SelectInt <|
                         lift .int intDecoder
-                StrField ->
+                Just StrField ->
                     map SelectStr <|
                         lift .str strDecoder
+                Nothing ->
+                    fail NoSelection
 
     intDecoder : Decoder String Error Int
     intDecoder =
@@ -787,23 +790,26 @@ optional (Decoder f) =
             |> assert (minLength TooShort 5)
 
 
-    run myDecoder <| Form IntField "foo" "bar"
+    run myDecoder <| Form (Just IntField) "foo" "bar"
     --> Err [ InvalidInt ]
 
-    run myDecoder <| Form StrField "foo" "bar"
+    run myDecoder <| Form (Just StrField) "foo" "bar"
     --> Err [ TooShort ]
 
-    run myDecoder <| Form IntField "23" "bar"
+    run myDecoder <| Form (Just IntField) "23" "bar"
     --> Ok <| SelectInt 23
 
-    run myDecoder <| Form StrField "23" "bar"
+    run myDecoder <| Form (Just StrField) "23" "bar"
     --> Err [ TooShort ]
 
-    run myDecoder <| Form IntField "foo" "barrrrr"
+    run myDecoder <| Form (Just IntField) "foo" "barrrrr"
     --> Err [ InvalidInt ]
 
-    run myDecoder <| Form StrField "foo" "barrrrr"
+    run myDecoder <| Form (Just StrField) "foo" "barrrrr"
     --> Ok <| SelectStr "barrrrr"
+
+    run myDecoder <| Form Nothing "foo" "barrrrr"
+    --> Err [ NoSelection ]
 
 -}
 with : (i -> Decoder i err a) -> Decoder i err a
