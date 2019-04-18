@@ -6,8 +6,7 @@
     "version": "1.0.0",
     "exposed-modules": {
         "Atomc views": [
-            "Atom.Input",
-            "Atom.Select"
+            "Atom.Input"
         ],
         "Layout": [
             "Layout",
@@ -16,6 +15,9 @@
         "Common Types": [
             "Email",
             "MobilePhone"
+        ],
+        "HTML": [
+            "Html.Attributes.More"
         ],
         "Utilities": [
             "ZenDigit",
@@ -26,10 +28,10 @@
     "dependencies": {
         "arowM/html": "1.0.1 <= v < 2.0.0",
         "arowM/html-extra": "1.0.0 <= v < 2.0.0",
-        "elm/core": "1.0.0 <= v < 2.0.0"
+        "elm/core": "1.0.0 <= v < 2.0.0",
+        "elm/json": "1.1.3 <= v < 2.0.0"
     },
     "test-dependencies": {
-        "elm/json": "1.1.3 <= v < 2.0.0",
         "elm-community/result-extra": "2.2.1 <= v < 3.0.0",
         "elm-explorations/test": "1.2.0 <= v < 2.0.0"
     }
