@@ -4,7 +4,8 @@ module Form.Decoder exposing
     , run
     , int
     , float
-    , succeed
+    , always
+    , identity
     , fail
     , minBound
     , maxBound
@@ -25,8 +26,6 @@ module Form.Decoder exposing
     , mapError
     , andThen
     , with
-    , optional
-    , required
     )
 
 {-| Main module that exports primitive decoders and helper functions for form decoding.
@@ -47,7 +46,8 @@ module Form.Decoder exposing
 
 @docs int
 @docs float
-@docs succeed
+@docs always
+@docs identity
 @docs fail
 
 
@@ -88,8 +88,6 @@ module Form.Decoder exposing
 
 @docs andThen
 @docs with
-@docs optional
-@docs required
 
 -}
 
@@ -97,14 +95,14 @@ module Form.Decoder exposing
 
 
 {-| Core type representing a decoder.
-It decodes user input into type `a`, raising error of type `err`.
+It decodes input into type `a`, raising error of type `err`.
 -}
 type Decoder input err a
     = Decoder (input -> Result (List err) a)
 
 
 {-| An alias for special decoder that does not produce any outputs.
-It is used for just validating user inputs.
+It is used for just validating inputs.
 -}
 type alias Validator input err =
     Decoder input err ()
@@ -114,7 +112,7 @@ type alias Validator input err =
 -- Decode functions
 
 
-{-| Basic decoder that decodes user input by given decoder.
+{-| Basic decoder that decodes input by given decoder.
 
     run (int "Invalid") "foo"
     --> Err [ "Invalid" ]
@@ -132,18 +130,32 @@ run (Decoder f) a =
 -- Primitive decoders
 
 
-{-| Primitive decoder that always returns user input as it is.
+{-| Primitive decoder that always succeeds with input as it is.
 
-    run succeed "foo"
+    run Form.Decoder.identity "foo"
     --> Ok "foo"
 
-    run succeed 34
+    run Form.Decoder.identity 34
     --> Ok 34
 
 -}
-succeed : Decoder input never input
-succeed =
-    custom <| Ok
+identity : Decoder input never input
+identity =
+    custom Ok
+
+
+{-| Primitive decoder that always succeeds with constant value.
+
+    run (Form.Decoder.always "bar") "foo"
+    --> Ok "bar"
+
+    run (Form.Decoder.always 34) 23
+    --> Ok 34
+
+-}
+always : a -> Decoder input never a
+always a =
+    custom <| \_ -> Ok a
 
 
 {-| Primitive decoder which always results to invalid.
@@ -166,7 +178,7 @@ fail err =
     custom <| \_ -> Err [ err ]
 
 
-{-| Decoder into `Int`, raising `err` when a user input is invalid for an integer.
+{-| Decoder into `Int`, raising `err` when a input is invalid for an integer.
 
     run (int "Invalid") "foo"
     --> Err [ "Invalid" ]
@@ -186,7 +198,7 @@ int err =
     custom <| Result.fromMaybe [ err ] << String.toInt
 
 
-{-| Decoder into `Float`, raising `err` when a user input is invalid for an float.
+{-| Decoder into `Float`, raising `err` when a input is invalid for an float.
 
     run (float "Invalid") "foo"
     --> Err [ "Invalid" ]
@@ -316,7 +328,7 @@ maxLength err bound =
 
 
 {-| Apply validator on given decoder.
-If a user input is invalid for given validator, decoding fails.
+If a input is invalid for given validator, decoding fails.
 
     type Error
         = Invalid
@@ -475,7 +487,7 @@ map f (Decoder g) =
 
     strDecoder : Decoder String Error String
     strDecoder =
-        succeed
+        Form.Decoder.identity
             |> assert (minLength TooShort 5)
 
     intDecoder : Decoder String Error Int
@@ -563,7 +575,7 @@ map5 f d1 d2 d3 d4 d5 =
 
     strDecoder : Decoder String StrError String
     strDecoder =
-        succeed
+        Form.Decoder.identity
             |> assert (minLength TooShort 5)
 
     intDecoder : Decoder String IntError Int
@@ -637,7 +649,7 @@ top f =
 
     advancedDecoder : Decoder String Error Int
     advancedDecoder =
-        succeed
+        Form.Decoder.identity
             |> assert (maxLength TooLong 5)
             |> andThen (\_ -> int InvalidInt)
             |> assert (maxBound TooBig 300)
@@ -668,81 +680,6 @@ andThen f (Decoder g) =
 
                 Ok x ->
                     run (f x) a
-
-
-{-| Lift a decoder for required user input, raising `err` when the input is `Nothing`.
-
-This is usefull if you want to distinguish uninput state from the situation that users deleted their inputs after input something.
-
-    type Error
-        = Required
-        | Invalid
-
-    myDecoder : Decoder (Maybe String) Error Int
-    myDecoder =
-        int Invalid
-            |> required Required
-
-    run myDecoder <| Nothing
-    --> Err [ Required ]
-
-    run myDecoder <| Just ""
-    --> Err [ Invalid ]
-
-    run myDecoder <| Just "foo"
-    --> Err [ Invalid ]
-
-    run myDecoder <| Just "23"
-    --> Ok 23
-
--}
-required : err -> Decoder input err a -> Decoder (Maybe input) err a
-required err (Decoder f) =
-    custom <|
-        \ma ->
-            case ma of
-                Nothing ->
-                    Err [ err ]
-
-                Just a ->
-                    f a
-
-
-{-| Lift a decoder for optional user input, returns `Ok Nothing` if the input is `Nothing`.
-
-This is usefull if you want to distinguish uninput state from the situation that users deleted their inputs after input something.
-
-    type Error
-        = Invalid
-
-    myDecoder : Decoder (Maybe String) Error (Maybe Int)
-    myDecoder =
-        int Invalid
-            |> optional
-
-    run myDecoder <| Nothing
-    --> Ok Nothing
-
-    run myDecoder <| Just ""
-    --> Err [ Invalid ]
-
-    run myDecoder <| Just "foo"
-    --> Err [ Invalid ]
-
-    run myDecoder <| Just "23"
-    --> Ok (Just 23)
-
--}
-optional : Decoder input err a -> Decoder (Maybe input) err (Maybe a)
-optional (Decoder f) =
-    custom <|
-        \ma ->
-            case ma of
-                Nothing ->
-                    Ok Nothing
-
-                Just a ->
-                    Result.map Just <| f a
 
 
 {-| Advanced function to build up case-sensitive decoder.
@@ -786,7 +723,7 @@ optional (Decoder f) =
 
     strDecoder : Decoder String Error String
     strDecoder =
-        succeed
+        Form.Decoder.identity
             |> assert (minLength TooShort 5)
 
 
