@@ -3,9 +3,14 @@ module Main exposing (main)
 import Browser
 import Css
 import Goat exposing (Goat)
+import Goat.ContactType as ContactType exposing (ContactType)
+import Goat.Age
+import Goat.Name
 import Html exposing (Attribute, Html, button, div, text)
 import Html.Attributes as Attributes
+import Html.Attributes.More as Attributes
 import Atom.Input as Input exposing (Input)
+import Atom.Select as Select exposing (Select)
 import Layout
 import Layout.Mixin as Mixin
 
@@ -46,7 +51,7 @@ type
     | ChangeEmail String
     | ChangePhone String
     | ChangeMessages String
-    | ToggleContactType Goat.ContactType
+    | ChangeContactType String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -99,9 +104,9 @@ update msg ({ form } as model) =
             , Cmd.none
             )
 
-        ToggleContactType ctype ->
+        ChangeContactType ctype ->
             ( setForm { form
-                | contactType = ctype
+                | contactType = Select.fromString ctype
                 }
             , Cmd.none
             )
@@ -171,6 +176,10 @@ form_view form =
                             }
                             form.name
                         ]
+                    , Goat.inputErrorField
+                        Goat.Name.errorField
+                        Goat.Name.decoder
+                        form.name
                     ]
                 ]
             , Layout.row
@@ -181,11 +190,15 @@ form_view form =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "2"
-                            , type_ = "number"
+                            , type_ = "text"
                             , onChange = ChangeAge
                             }
                             form.age
                         ]
+                    , Goat.inputErrorField
+                        Goat.Age.errorField
+                        Goat.Age.decoder
+                        form.age
                     ]
                 ]
             , Layout.row
@@ -196,7 +209,7 @@ form_view form =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "0"
-                            , type_ = "number"
+                            , type_ = "text"
                             , onChange = ChangeHorns
                             }
                             form.horns
@@ -204,36 +217,58 @@ form_view form =
                     ]
                 ]
             , Layout.row
-                [ Goat.label "Contact"
+                [ Goat.label "Means of contact"
                 , Goat.control
-                    [ Goat.subdescription "(Either of email or phone number is required)"
-                    , Layout.row
-                        [ Goat.label "Email"
-                        , Goat.control
-                            [ Goat.description "Email address to contact you."
-                            , Layout.wrap2
-                                [ Input.view
-                                    { placeholder = "you-goat-a-mail@example.com"
-                                    , type_ = "email"
-                                    , onChange = ChangeEmail
-                                    }
-                                    form.email
-                                ]
-                            ]
+                    [ Goat.description "How to contact you?"
+                    , Goat.subdescription "(required)"
+                    , Layout.wrap2
+                        [ Select.view
+                            { options =
+                                (Select.label "== Choose one ==", "") ::
+                                List.map (\c -> (ContactType.toLabel c, ContactType.toString c)) ContactType.enum
+                            , onChange = ChangeContactType
+                            }
+                            form.contactType
                         ]
-                    , Layout.row
-                        [ Goat.label "Phone number"
-                        , Goat.control
-                            [ Goat.description "Phone number to contact you."
-                            , Layout.wrap2
-                                [ Input.view
-                                    { placeholder = "090-0000-0000"
-                                    , type_ = "tel"
-                                    , onChange = ChangePhone
-                                    }
-                                    form.phone
-                                ]
-                            ]
+                    ]
+                ]
+            , div
+                [ Mixin.row
+                , class "toggle-field"
+                , Attributes.boolAttribute "aria-hidden" <|
+                    Select.decode ContactType.decoder form.contactType /= Ok ContactType.UseEmail
+                ]
+                [ Goat.label "Email"
+                , Goat.control
+                    [ Goat.description "Email address to contact you?"
+                    , Goat.subdescription "(required)"
+                    , Layout.wrap2
+                        [ Input.view
+                            { placeholder = "you-goat-a-mail@example.com"
+                            , type_ = "email"
+                            , onChange = ChangeEmail
+                            }
+                            form.email
+                        ]
+                    ]
+                ]
+            , div
+                [ Mixin.row
+                , class "toggle-field"
+                , Attributes.boolAttribute "aria-hidden" <|
+                    Select.decode ContactType.decoder form.contactType /= Ok ContactType.UsePhone
+                ]
+                [ Goat.label "Phone number"
+                , Goat.control
+                    [ Goat.description "Phone number to contact you."
+                    , Goat.subdescription "(required)"
+                    , Layout.wrap2
+                        [ Input.view
+                            { placeholder = "090-0000-0000"
+                            , type_ = "tel"
+                            , onChange = ChangePhone
+                            }
+                            form.phone
                         ]
                     ]
                 ]

@@ -28,5 +28,5 @@ errorField err =
 
 decoder : Decoder String Error Message
 decoder =
-    Decoder.succeed
+    Decoder.identity
         |> Decoder.map Message

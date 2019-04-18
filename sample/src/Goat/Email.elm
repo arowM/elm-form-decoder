@@ -56,6 +56,6 @@ errorField err =
 
 decoder : Decoder String Error Email
 decoder =
-    Decoder.succeed
+    Decoder.identity
         |> Decoder.assert (Decoder.minLength Empty 1)
         |> Decoder.andThen (\_ -> Decoder.mapError Invalid Email.decoder)

@@ -50,6 +50,6 @@ errorField err =
 
 decoder : Decoder String Error Phone
 decoder =
-    Decoder.succeed
+    Decoder.identity
         |> Decoder.assert (Decoder.minLength Empty 1)
         |> Decoder.andThen (\_ -> Decoder.mapError Invalid MobilePhone.decoder)

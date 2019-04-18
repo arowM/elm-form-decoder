@@ -20,7 +20,7 @@ toString (Name str) =
 
 
 type Error
-    = Empty
+    = NoError
 
 
 {-| Display error on input fields.
@@ -28,14 +28,11 @@ type Error
 errorField : Error -> List String
 errorField err =
     case err of
-        Empty ->
-            [ "This field is required."
-            , "Please input."
-            ]
+        NoError ->
+            []
 
 
 decoder : Decoder String Error Name
 decoder =
-    Decoder.succeed
-        |> Decoder.assert (Decoder.minLength Empty 1)
+    Decoder.identity
         |> Decoder.map Name

@@ -9,6 +9,7 @@ module Goat exposing
     , init
     , label
     , subdescription
+    , inputErrorField
     )
 
 import Atom.Input as Input exposing (Input)
@@ -23,6 +24,7 @@ import Goat.Message as Message exposing (Message)
 import Goat.Name as Name exposing (Name)
 import Goat.Phone as Phone exposing (Phone)
 import Html exposing (Attribute, Html, div, text)
+import Html.Extra as Html
 import Html.Attributes as Attributes
 
 
@@ -39,50 +41,88 @@ type alias Goat =
     }
 
 
-decoder : Decoder Form Error Goat
-decoder =
-    Decoder.map5 Goat
-        (required NameRequired .name NameError Name.decoder)
-        (required AgeRequired .age AgeError Age.decoder)
-        (required HornsRequired .horns HornsError Horns.decoder)
-        contact_decoder
-        (optional .message MessageError Message.decoder)
-
-
-required : Error -> (Form -> Input) -> (err -> Error) -> Decoder String err a -> Decoder Form Error a
-required err getter wrapErr =
-    Decoder.lift getter << Input.required err << Decoder.mapError wrapErr
-
-
-optional : (Form -> Input) -> (err -> Error) -> Decoder String err a -> Decoder Form Error (Maybe a)
-optional getter wrapErr =
-    Decoder.lift getter << Input.optional << Decoder.mapError wrapErr
-
-
-
--- Contact
-
-
 type Contact
     = ContactEmail Email
     | ContactPhone Phone
 
 
-contact_decoder : Decoder Form Error Contact
-contact_decoder =
-    Decoder.with <|
-        \form ->
-            case Select.selected form.contactType of
-                Just ContactType.UseEmail ->
-                    required EmailRequired .email EmailError Email.decoder
-                        |> Decoder.map ContactEmail
+decoder : Decoder Form Error Goat
+decoder =
+    Decoder.map5 Goat
+        decoderName
+        decoderAge
+        decoderHorns
+        decoderContact
+        decoderMessage
 
-                Just ContactType.UsePhone ->
-                    required PhoneRequired .phone PhoneError Phone.decoder
-                        |> Decoder.map ContactPhone
 
-                Nothing ->
-                    Decoder.fail ContactTypeReauired
+decoderName : Decoder Form Error Name
+decoderName =
+    Name.decoder
+        |> Decoder.mapError NameError
+        |> Input.required NameRequired
+        |> Decoder.lift .name
+
+
+decoderAge : Decoder Form Error Age
+decoderAge =
+    Age.decoder
+        |> Decoder.mapError AgeError
+        |> Input.required AgeRequired
+        |> Decoder.lift .age
+
+
+decoderHorns : Decoder Form Error Horns
+decoderHorns =
+    Horns.decoder
+        |> Decoder.mapError HornsError
+        |> Input.required HornsRequired
+        |> Decoder.lift .horns
+
+
+decoderMessage : Decoder Form Error (Maybe Message)
+decoderMessage =
+    Message.decoder
+        |> Decoder.mapError MessageError
+        |> Input.optional
+        |> Decoder.lift .message
+
+
+decoderContact : Decoder Form Error Contact
+decoderContact =
+    ContactType.decoder
+        |> Decoder.mapError ContactTypeError
+        |> Select.required ContactTypeReauired
+        |> Decoder.lift .contactType
+        |> Decoder.andThen decoderContact_
+
+
+decoderContact_ : ContactType -> Decoder Form Error Contact
+decoderContact_ ctype =
+    case ctype of
+        ContactType.UseEmail ->
+            Decoder.map ContactEmail
+                decoderEmail
+
+        ContactType.UsePhone ->
+            Decoder.map ContactPhone
+                decoderPhone
+
+
+decoderEmail : Decoder Form Error Email
+decoderEmail =
+    Email.decoder
+        |> Decoder.mapError EmailError
+        |> Input.required EmailRequired
+        |> Decoder.lift .email
+
+
+decoderPhone : Decoder Form Error Phone
+decoderPhone =
+    Phone.decoder
+        |> Decoder.mapError PhoneError
+        |> Input.required PhoneRequired
+        |> Decoder.lift .phone
 
 
 
@@ -95,20 +135,20 @@ type alias Form =
     , horns : Input
     , email : Input
     , phone : Input
-    , contactType : Select ContactType
+    , contactType : Select
     , message : Input
     }
 
 
 init : Form
 init =
-    { name = Input.init
-    , age = Input.init
-    , horns = Input.init
-    , email = Input.init
-    , phone = Input.init
-    , contactType = Select.init
-    , message = Input.init
+    { name = Input.empty
+    , age = Input.empty
+    , horns = Input.empty
+    , email = Input.empty
+    , phone = Input.empty
+    , contactType = Select.none
+    , message = Input.empty
     }
 
 
@@ -123,6 +163,7 @@ type Error
     | AgeRequired
     | HornsError Horns.Error
     | HornsRequired
+    | ContactTypeError ContactType.Error
     | ContactTypeReauired
     | EmailError Email.Error
     | EmailRequired
@@ -168,6 +209,23 @@ subdescription str =
         ]
         [ text str
         ]
+
+
+inputErrorField : (err -> List String) -> Decoder String err a -> Input -> Html msg
+inputErrorField errorField d i =
+    case Decoder.run (Input.optional d) i of
+        Ok _ ->
+            Html.nothing
+
+        Err errs ->
+            List.map
+                ( errorField >> \fs ->
+                    div
+                        []
+                        <| List.map text fs
+                )
+                errs
+                    |> div []
 
 
 

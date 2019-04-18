@@ -6,7 +6,6 @@ module Goat.Age exposing
     , errorField
     )
 
-import Atom.Input exposing (Input)
 import Form.Decoder as Decoder exposing (Decoder)
 import ZenDigit
 
@@ -18,8 +17,7 @@ toString : Age -> String
 toString (Age n) = String.fromInt n
 
 type Error
-    = Empty
-    | InvalidInt
+    = InvalidInt
     | Negative
 
 
@@ -28,11 +26,6 @@ type Error
 errorField : Error -> List String
 errorField err =
     case err of
-        Empty ->
-            [ "This field is required."
-            , "Please input."
-            ]
-
         InvalidInt ->
             [ "Invalid input."
             , "Please input integer."

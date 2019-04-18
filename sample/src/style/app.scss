@@ -75,6 +75,12 @@
   }
 }
 
+.toggle-field {
+  &[aria-hidden="true"] {
+    display: none;
+  }
+}
+
 .row-button {
   text-align: right;
   padding: $half-padding;
