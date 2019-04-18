@@ -2,7 +2,7 @@ module Atom.Input exposing
     ( Input
     , fromString
     , toString
-    , init
+    , empty
     , Config
     , view
     , decode
@@ -18,7 +18,7 @@ module Atom.Input exposing
 @docs Input
 @docs fromString
 @docs toString
-@docs init
+@docs empty
 
 
 # Atomic view
@@ -50,32 +50,28 @@ import Html.Events.Extra as Events
 {-| Core type to maintain input state.
 -}
 type Input
-    = Input (Maybe String)
+    = Input String
 
 
-{-| Uninput state of `Input`.
+{-| An alias for `fromString ""`.
 -}
-init : Input
-init =
-    Input Nothing
+empty : Input
+empty =
+    Input ""
 
 
-{-| Unwrap `Input` to `Maybe String`.
-
-  - `Nothing` means user has not input yet
-  - `Just ""` means user has deleted their input after inputing something.
-
+{-| Unwrap `Input` to `String`.
 -}
-toString : Input -> Maybe String
-toString (Input mv) =
-    mv
+toString : Input -> String
+toString (Input v) =
+    v
 
 
 {-| Constructor for `Input`.
 -}
 fromString : String -> Input
 fromString =
-    Input << Just
+    Input
 
 
 
@@ -95,12 +91,11 @@ type alias Config msg =
 {-| Atomic view for input box.
 -}
 view : Config msg -> Input -> Html msg
-view conf (Input mv) =
+view conf (Input v) =
     input
         [ Attributes.type_ conf.type_
         , Attributes.placeholder conf.placeholder
-        , Attributes.value <|
-            Maybe.withDefault "" mv
+        , Attributes.value v
         , Events.onChange conf.onChange
         , class "input"
         ]
@@ -115,80 +110,74 @@ view conf (Input mv) =
 
     import Form.Decoder as Decoder exposing (Decoder)
 
-    decode Decoder.succeed <| init
-    --> Ok Nothing
+    decode Decoder.identity <| empty
+    --> Ok ""
 
-    decode (Decoder.int "Invalid") <| init
-    --> Ok Nothing
-
-    decode (Decoder.int "Invalid") <| fromString "21"
-    --> Ok <| Just 21
-
-    decode (Decoder.int "Invalid") <| fromString "foo"
+    decode (Decoder.int "Invalid") <| empty
     --> Err [ "Invalid" ]
 
+    decode (Decoder.int "Invalid") <| fromString "21"
+    --> Ok 21
+
 -}
-decode : Decoder String err a -> Input -> Result (List err) (Maybe a)
+decode : Decoder String err a -> Input -> Result (List err) a
 decode d =
-    Decoder.run <| optional d
-
-
-{-| Used for building up form decoder.
--}
-optional : Decoder String err a -> Decoder Input err (Maybe a)
-optional =
-    Decoder.lift (\(Input ma) -> ma) << Decoder.optional
+    Decoder.run <| Decoder.lift toString d
 
 
 {-| Used for building up form decoder.
 
     import Form.Decoder as Decoder exposing (Decoder)
 
-    type alias Form =
-        { field1 : Input
-        , field2 : Input
-        }
+    Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| empty
+    --> Err [ "Invalid" ]
 
-    type alias Decoded =
-        { optionalInt : Maybe Int
-        , requiredString : String
-        }
+    Decoder.run (optional <| Decoder.int "Invalid") <| empty
+    --> Ok Nothing
 
-    type Error
-        = InvalidInt
-        | StringRequired
+    Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| fromString "21"
+    --> Ok 21
 
-    decoder1 : Decoder String Error Int
-    decoder1 = Decoder.int InvalidInt
+    Decoder.run (optional <| Decoder.int "Invalid") <| fromString "21"
+    --> Ok <| Just 21
 
-    decoder2 : Decoder String Error String
-    decoder2 = Decoder.succeed
+-}
+optional : Decoder String err a -> Decoder Input err (Maybe a)
+optional d =
+    Decoder.with <|
+        \(Input a) ->
+            case a of
+                "" ->
+                    Decoder.always Nothing
 
-    formDecoder : Decoder Form Error Decoded
-    formDecoder =
-        Decoder.map2 Decoded
-            (Decoder.lift .field1 <| optional decoder1)
-            (Decoder.lift .field2 <| required StringRequired decoder2)
+                _ ->
+                    Decoder.lift toString <| Decoder.map Just <| d
 
-    Decoder.run formDecoder <| Form init init
-    --> Err [ StringRequired ]
 
-    Decoder.run formDecoder <| Form init (fromString "")
-    --> Ok <| Decoded Nothing ""
+{-| Used for building up form decoder.
 
-    Decoder.run formDecoder <| Form init (fromString "foo")
-    --> Ok <| Decoded Nothing "foo"
+    import Form.Decoder as Decoder exposing (Decoder)
 
-    Decoder.run formDecoder <|
-        Form
-            (fromString "bar")
-            (fromString "foo")
-    --> Err [ InvalidInt ]
+    Decoder.run (required "Required" <| Decoder.int "Invalid") <| empty
+    --> Err [ "Required" ]
+
+    Decoder.run (required "Required" <| Decoder.int "Invalid") <| fromString "foo"
+    --> Err [ "Invalid" ]
+
+    Decoder.run (required "Required" <| Decoder.int "Invalid") <| fromString "21"
+    --> Ok 21
 
 -}
 required : err -> Decoder String err a -> Decoder Input err a
-required err =
-    Decoder.lift (\(Input ma) -> ma) << Decoder.required err
+required err d =
+    Decoder.with <|
+        \(Input a) ->
+            case a of
+                "" ->
+                    Decoder.fail err
+
+                _ ->
+                    Decoder.lift toString d
 
 
 

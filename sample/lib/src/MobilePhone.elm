@@ -112,7 +112,7 @@ Note that it converts Zenkaku digits to Hankaku digits beforehand.
 -}
 decoder : Decoder String Invalid MobilePhone
 decoder =
-    Decoder.succeed
+    Decoder.identity
         |> Decoder.map normalize
         |> Decoder.assert invalidChar
         |> Decoder.map raw

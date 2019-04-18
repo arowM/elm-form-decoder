@@ -5,6 +5,5 @@
   , "MobilePhone"
   , "ZenDigit"
   , "Atom.Input"
-  , "Atom.Select"
   ]
 }
