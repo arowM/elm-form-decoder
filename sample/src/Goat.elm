@@ -1,21 +1,22 @@
 module Goat exposing
     ( Contact(..)
-    , ContactType(..)
     , Error(..)
     , Form
     , Goat
-    , init
-    , decoder
-    , label
     , control
+    , decoder
     , description
+    , init
+    , label
     , subdescription
     )
 
 import Atom.Input as Input exposing (Input)
+import Atom.Select as Select exposing (Select)
 import Css
 import Form.Decoder as Decoder exposing (Decoder)
 import Goat.Age as Age exposing (Age)
+import Goat.ContactType as ContactType exposing (ContactType)
 import Goat.Email as Email exposing (Email)
 import Goat.Horns as Horns exposing (Horns)
 import Goat.Message as Message exposing (Message)
@@ -71,14 +72,17 @@ contact_decoder : Decoder Form Error Contact
 contact_decoder =
     Decoder.with <|
         \form ->
-            case form.contactType of
-                UseEmail ->
+            case Select.selected form.contactType of
+                Just ContactType.UseEmail ->
                     required EmailRequired .email EmailError Email.decoder
                         |> Decoder.map ContactEmail
 
-                UsePhone ->
+                Just ContactType.UsePhone ->
                     required PhoneRequired .phone PhoneError Phone.decoder
                         |> Decoder.map ContactPhone
+
+                Nothing ->
+                    Decoder.fail ContactTypeReauired
 
 
 
@@ -91,14 +95,9 @@ type alias Form =
     , horns : Input
     , email : Input
     , phone : Input
-    , contactType : ContactType
+    , contactType : Select ContactType
     , message : Input
     }
-
-
-type ContactType
-    = UseEmail
-    | UsePhone
 
 
 init : Form
@@ -108,7 +107,7 @@ init =
     , horns = Input.init
     , email = Input.init
     , phone = Input.init
-    , contactType = UseEmail
+    , contactType = Select.init
     , message = Input.init
     }
 
@@ -124,6 +123,7 @@ type Error
     | AgeRequired
     | HornsError Horns.Error
     | HornsRequired
+    | ContactTypeReauired
     | EmailError Email.Error
     | EmailRequired
     | PhoneError Phone.Error
@@ -168,6 +168,7 @@ subdescription str =
         ]
         [ text str
         ]
+
 
 
 -- Helper functions
