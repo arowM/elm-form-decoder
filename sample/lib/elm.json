@@ -6,7 +6,8 @@
     "version": "1.0.0",
     "exposed-modules": {
         "Atomc views": [
-            "Atom.Input"
+            "Atom.Input",
+            "Atom.Select"
         ],
         "Layout": [
             "Layout",

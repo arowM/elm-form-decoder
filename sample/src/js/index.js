@@ -3,6 +3,7 @@ require('../style/layout.scss');
 require('../style/app.scss');
 require('../style/form.scss');
 require('../style/input.scss');
+require('../style/select.scss');
 
 const { Elm } = require('../Main.elm');
 

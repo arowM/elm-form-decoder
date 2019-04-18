@@ -1,8 +1,12 @@
-module Atom.Input exposing
-    ( Input
+module Atom.Select exposing
+    ( Select
     , fromString
     , toString
-    , empty
+    , none
+    , Option
+    , defaultOption
+    , Label
+    , label
     , Config
     , view
     , decode
@@ -10,15 +14,19 @@ module Atom.Input exposing
     , required
     )
 
-{-| Atomic view for input boxes.
+{-| Atomic view for select boxes.
 
 
 # Core
 
-@docs Input
+@docs Select
 @docs fromString
 @docs toString
-@docs empty
+@docs none
+@docs Option
+@docs defaultOption
+@docs Label
+@docs label
 
 
 # Atomic view
@@ -37,41 +45,67 @@ module Atom.Input exposing
 
 import Css
 import Form.Decoder as Decoder exposing (Decoder)
-import Html exposing (Attribute, Html, input)
+import Html exposing (Attribute, Html, select, text)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Html.Events.Extra as Events
+import Html.Lazy exposing (lazy2)
 
 
 
 -- Core
 
 
-{-| Core type to maintain input state.
+{-| Core type to maintain select state.
 -}
-type Input
-    = Input String
+type Select
+    = Select String
+
+
+{-| Representing a label shown in select options.
+-}
+type Label
+    = Label String
+
+
+{-| -}
+type alias Option =
+    ( Label, String )
+
+
+{-| Constructor for `Label`.
+-}
+label : String -> Label
+label =
+    Label
 
 
 {-| An alias for `fromString ""`.
 -}
-empty : Input
-empty =
-    Input ""
+none : Select
+none =
+    Select ""
 
 
-{-| Unwrap `Input` to `String`.
+{-| Unwrap `Select` to `String`.
 -}
-toString : Input -> String
-toString (Input v) =
+toString : Select -> String
+toString (Select v) =
     v
 
 
-{-| Constructor for `Input`.
+{-| Constructor for `Select`.
 -}
-fromString : String -> Input
+fromString : String -> Select
 fromString =
-    Input
+    Select
+
+
+{-| Default option when selected none.
+-}
+defaultOption : String -> Option
+defaultOption str =
+    ( label str, "" )
 
 
 
@@ -80,50 +114,61 @@ fromString =
 
 {-| Configuration for atomic view.
 This is **NOT** state, which means that it is read only and you must not put `Config` in your model.
-
-  - `type_` -- "type" attribute for input tag.
-
 -}
 type alias Config msg =
-    { placeholder : String
-    , type_ : String
+    { options : List Option
     , onChange : String -> msg
     }
 
 
-{-| Atomic view for input box.
+{-| Atomic view for select box.
 -}
-view : Config msg -> Input -> Html msg
-view conf (Input v) =
-    input
-        [ Attributes.type_ conf.type_
-        , Attributes.placeholder conf.placeholder
-        , Attributes.value v
-        , Events.onChange conf.onChange
-        , class "input"
+view : Config msg -> Select -> Html msg
+view conf (Select v) =
+    select
+        [ Attributes.value v
+        , Events.onInput conf.onChange
+        , class "select"
         ]
-        []
+    <|
+        List.map
+            (\( Label str, value ) ->
+                lazy2 option str value
+            )
+            conf.options
+
+
+option : String -> String -> Html msg
+option str v =
+    Html.option
+        -- DO NOT CHANGE TO `Attributes.value`.
+        -- `Attributes.value ""` does not actually add "value" option to the `option` tag.
+        [ class "option"
+        , Attributes.attribute "value" v
+        ]
+        [ text str
+        ]
 
 
 
 -- Decoders
 
 
-{-| Decoder for each input field.
+{-| Decoder for each select field.
 
     import Form.Decoder as Decoder exposing (Decoder)
 
-    decode Decoder.identity <| empty
+    decode Decoder.identity <| none
     --> Ok ""
 
-    decode (Decoder.int "Invalid") <| empty
+    decode (Decoder.int "Invalid") <| none
     --> Err [ "Invalid" ]
 
     decode (Decoder.int "Invalid") <| fromString "21"
     --> Ok 21
 
 -}
-decode : Decoder String err a -> Input -> Result (List err) a
+decode : Decoder String err a -> Select -> Result (List err) a
 decode d =
     Decoder.run <| Decoder.lift toString d
 
@@ -132,10 +177,10 @@ decode d =
 
     import Form.Decoder as Decoder exposing (Decoder)
 
-    Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| empty
+    Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| none
     --> Err [ "Invalid" ]
 
-    Decoder.run (optional <| Decoder.int "Invalid") <| empty
+    Decoder.run (optional <| Decoder.int "Invalid") <| none
     --> Ok Nothing
 
     Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| fromString "21"
@@ -145,10 +190,10 @@ decode d =
     --> Ok <| Just 21
 
 -}
-optional : Decoder String err a -> Decoder Input err (Maybe a)
+optional : Decoder String err a -> Decoder Select err (Maybe a)
 optional d =
     Decoder.with <|
-        \(Input a) ->
+        \(Select a) ->
             case a of
                 "" ->
                     Decoder.always Nothing
@@ -161,7 +206,7 @@ optional d =
 
     import Form.Decoder as Decoder exposing (Decoder)
 
-    Decoder.run (required "Required" <| Decoder.int "Invalid") <| empty
+    Decoder.run (required "Required" <| Decoder.int "Invalid") <| none
     --> Err [ "Required" ]
 
     Decoder.run (required "Required" <| Decoder.int "Invalid") <| fromString "foo"
@@ -171,10 +216,10 @@ optional d =
     --> Ok 21
 
 -}
-required : err -> Decoder String err a -> Decoder Input err a
+required : err -> Decoder String err a -> Decoder Select err a
 required err d =
     Decoder.with <|
-        \(Input a) ->
+        \(Select a) ->
             case a of
                 "" ->
                     Decoder.fail err
@@ -192,4 +237,4 @@ It handles generated class name by CSS modules.
 -}
 class : String -> Attribute msg
 class =
-    Css.classWithPrefix "input__"
+    Css.classWithPrefix "select__"
