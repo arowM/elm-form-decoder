@@ -7,9 +7,11 @@ module Goat exposing
     , decoder
     , description
     , init
-    , label
-    , subdescription
     , inputErrorField
+    , label
+    , selectErrorField
+    , fieldRequired
+    , fieldOptional
     )
 
 import Atom.Input as Input exposing (Input)
@@ -24,8 +26,10 @@ import Goat.Message as Message exposing (Message)
 import Goat.Name as Name exposing (Name)
 import Goat.Phone as Phone exposing (Phone)
 import Html exposing (Attribute, Html, div, text)
-import Html.Extra as Html
 import Html.Attributes as Attributes
+import Html.Attributes.More as Attributes
+import Html.Extra as Html
+import Layout
 
 
 
@@ -92,7 +96,7 @@ decoderContact : Decoder Form Error Contact
 decoderContact =
     ContactType.decoder
         |> Decoder.mapError ContactTypeError
-        |> Select.required ContactTypeReauired
+        |> Select.required ContactTypeRequired
         |> Decoder.lift .contactType
         |> Decoder.andThen decoderContact_
 
@@ -164,7 +168,7 @@ type Error
     | HornsError Horns.Error
     | HornsRequired
     | ContactTypeError ContactType.Error
-    | ContactTypeReauired
+    | ContactTypeRequired
     | EmailError Email.Error
     | EmailRequired
     | PhoneError Phone.Error
@@ -202,30 +206,59 @@ description str =
         ]
 
 
-subdescription : String -> Html msg
-subdescription str =
+fieldRequired : Bool -> String -> Html msg
+fieldRequired b str =
     div
         [ class "subdescription"
+        , class "subdescription-required"
+        , Attributes.boolAttribute "data-required-error" b
+        ]
+        [ text str
+        ]
+
+
+fieldOptional : String -> Html msg
+fieldOptional str =
+    div
+        [ class "subdescription"
+        , class "subdescription-optional"
         ]
         [ text str
         ]
 
 
 inputErrorField : (err -> List String) -> Decoder String err a -> Input -> Html msg
-inputErrorField errorField d i =
-    case Decoder.run (Input.optional d) i of
+inputErrorField f d i =
+    case Input.decodeField d i of
         Ok _ ->
             Html.nothing
 
         Err errs ->
+            errorField
+                <| List.map f errs
+
+
+selectErrorField : (err -> List String) -> Decoder String err a -> Select -> Html msg
+selectErrorField f d i =
+    case Select.decodeField d i of
+        Ok _ ->
+            Html.nothing
+
+        Err errs ->
+            errorField
+                <| List.map f errs
+
+errorField : List (List String) -> Html msg
+errorField errs =
             List.map
-                ( errorField >> \fs ->
-                    div
-                        []
-                        <| List.map text fs
+                ( Layout.wrap2 <<
+                         List.map (\s -> Html.p [ class "errorField_p" ] [ text s ])
                 )
                 errs
-                    |> div []
+                |> div
+                    [ class "errorField"
+                    ]
+
 
 
 

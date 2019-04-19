@@ -9,7 +9,7 @@ module Atom.Select exposing
     , label
     , Config
     , view
-    , decode
+    , decodeField
     , optional
     , required
     )
@@ -37,7 +37,7 @@ module Atom.Select exposing
 
 # Decoders
 
-@docs decode
+@docs decodeField
 @docs optional
 @docs required
 
@@ -156,21 +156,13 @@ option str v =
 
 {-| Decoder for each select field.
 
-    import Form.Decoder as Decoder exposing (Decoder)
-
-    decode Decoder.identity <| none
-    --> Ok ""
-
-    decode (Decoder.int "Invalid") <| none
-    --> Err [ "Invalid" ]
-
-    decode (Decoder.int "Invalid") <| fromString "21"
-    --> Ok 21
+    decodeField =
+        Decoder.run << optional
 
 -}
-decode : Decoder String err a -> Select -> Result (List err) a
-decode d =
-    Decoder.run <| Decoder.lift toString d
+decodeField : Decoder String err a -> Select -> Result (List err) (Maybe a)
+decodeField =
+    Decoder.run << optional
 
 
 {-| Used for building up form decoder.

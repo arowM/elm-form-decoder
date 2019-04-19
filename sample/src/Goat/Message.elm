@@ -1,18 +1,24 @@
 module Goat.Message exposing
-    ( Message
-    , Error(..)
-    , toString
+    ( Error(..)
+    , Message
     , decoder
     , errorField
+    , toString
     )
 
 import Atom.Input exposing (Input)
 import Form.Decoder as Decoder exposing (Decoder)
 
 
-type Message = Message String
+type Message
+    = Message String
+
+
 toString : Message -> String
-toString (Message str) = str
+toString (Message str) =
+    str
+
+
 type Error
     = NoPotentialErrors
 

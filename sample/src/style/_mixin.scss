@@ -1,0 +1,4 @@
+@mixin errorText {
+  color: $error-color;
+  text-shadow: 0 0 3px $error-shadow-color;
+}

@@ -6,8 +6,8 @@ module Goat.Name exposing
     , toString
     )
 
-import Form.Decoder as Decoder exposing (Decoder)
 import Atom.Input exposing (Input)
+import Form.Decoder as Decoder exposing (Decoder)
 
 
 type Name

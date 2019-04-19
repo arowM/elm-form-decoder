@@ -1,20 +1,23 @@
 module Goat.Age exposing
     ( Age
     , Error(..)
-    , toString
     , decoder
     , errorField
+    , toString
     )
 
 import Form.Decoder as Decoder exposing (Decoder)
 import ZenDigit
+
 
 type Age
     = Age Int
 
 
 toString : Age -> String
-toString (Age n) = String.fromInt n
+toString (Age n) =
+    String.fromInt n
+
 
 type Error
     = InvalidInt

@@ -1,21 +1,24 @@
 module Goat.Horns exposing
-    ( Horns
-    , Error(..)
-    , toString
+    ( Error(..)
+    , Horns
     , decoder
     , errorField
+    , toString
     )
 
 import Atom.Input exposing (Input)
 import Form.Decoder as Decoder exposing (Decoder)
 import ZenDigit
 
-type Horns =
-    Horns Int
+
+type Horns
+    = Horns Int
 
 
 toString : Horns -> String
-toString (Horns n) = String.fromInt n
+toString (Horns n) =
+    String.fromInt n
+
 
 type Error
     = Empty

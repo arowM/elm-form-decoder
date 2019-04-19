@@ -1,9 +1,9 @@
 module Goat.Phone exposing
-    ( Phone
-    , Error(..)
-    , toString
+    ( Error(..)
+    , Phone
     , decoder
     , errorField
+    , toString
     )
 
 import Atom.Input exposing (Input)
@@ -11,10 +11,14 @@ import Form.Decoder as Decoder exposing (Decoder)
 import MobilePhone
 
 
-type alias Phone = MobilePhone.MobilePhone
+type alias Phone =
+    MobilePhone.MobilePhone
+
 
 toString : Phone -> String
-toString = MobilePhone.toString { withHiphen = True }
+toString =
+    MobilePhone.toString { withHiphen = True }
+
 
 type Error
     = Empty
@@ -45,7 +49,6 @@ errorField err =
             [ "Contains invalid characters"
             , "Please input only digits or hiphens."
             ]
-
 
 
 decoder : Decoder String Error Phone

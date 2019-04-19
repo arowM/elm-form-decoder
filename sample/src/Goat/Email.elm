@@ -1,9 +1,9 @@
 module Goat.Email exposing
-    ( Error(..)
-    , Email
-    , toString
+    ( Email
+    , Error(..)
     , decoder
     , errorField
+    , toString
     )
 
 import Atom.Input exposing (Input)
@@ -11,11 +11,13 @@ import Email
 import Form.Decoder as Decoder exposing (Decoder)
 
 
-type alias Email = Email.Email
+type alias Email =
+    Email.Email
 
 
 toString : Email -> String
-toString = Email.toString
+toString =
+    Email.toString
 
 
 type Error

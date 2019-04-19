@@ -1,3 +1,4 @@
+@import 'mixin';
 @import 'variables';
 
 .label {
@@ -35,4 +36,18 @@
   font-size: 0.9em;
   padding: $quarter-padding;
   color: $notable-color;
+}
+
+[data-submitted="true"] {
+  .subdescription {
+    &-required {
+      &[data-required-error="true"] {
+        @include errorText;
+      }
+    }
+  }
+}
+
+.errorField {
+  @include errorText;
 }

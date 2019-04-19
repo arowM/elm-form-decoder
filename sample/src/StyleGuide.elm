@@ -1,6 +1,5 @@
 module StyleGuide exposing (main)
 
-import Layout
 import Browser
 import Html exposing (Attribute, Html, div, text)
 import Html.Attributes as Attributes exposing (href)
@@ -75,6 +74,7 @@ title str =
             ]
         ]
 
+
 chapterInput : Html Msg
 chapterInput =
     div []
@@ -127,15 +127,15 @@ input_row : List (Attribute Msg) -> Html Msg
 input_row attrs =
     Layout.row
         [ div
-            ( Input.decorate "default" :: Layout.wrap :: attrs )
+            (Input.decorate "default" :: Layout.wrap :: attrs)
             [ input
             ]
         , div
-            ( Input.decorate "shadow1" :: Layout.wrap :: attrs )
+            (Input.decorate "shadow1" :: Layout.wrap :: attrs)
             [ input
             ]
         , div
-            ( Input.decorate "dark" :: Layout.wrap :: attrs )
+            (Input.decorate "dark" :: Layout.wrap :: attrs)
             [ input
             ]
         ]

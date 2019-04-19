@@ -5,7 +5,7 @@ module Atom.Input exposing
     , empty
     , Config
     , view
-    , decode
+    , decodeField
     , optional
     , required
     )
@@ -29,7 +29,7 @@ module Atom.Input exposing
 
 # Decoders
 
-@docs decode
+@docs decodeField
 @docs optional
 @docs required
 
@@ -111,21 +111,13 @@ view conf (Input v) =
 
 {-| Decoder for each input field.
 
-    import Form.Decoder as Decoder exposing (Decoder)
-
-    decode Decoder.identity <| empty
-    --> Ok ""
-
-    decode (Decoder.int "Invalid") <| empty
-    --> Err [ "Invalid" ]
-
-    decode (Decoder.int "Invalid") <| fromString "21"
-    --> Ok 21
+    decodeField =
+        Decoder.run << optional
 
 -}
-decode : Decoder String err a -> Input -> Result (List err) a
-decode d =
-    Decoder.run <| Decoder.lift toString d
+decodeField : Decoder String err a -> Input -> Result (List err) (Maybe a)
+decodeField =
+    Decoder.run << optional
 
 
 {-| Used for building up form decoder.
