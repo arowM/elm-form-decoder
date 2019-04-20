@@ -1,17 +1,17 @@
 module Goat exposing
     ( Contact(..)
     , Error(..)
-    , Form
     , Goat
+    , RegisterForm
     , control
     , decoder
     , description
+    , fieldOptional
+    , fieldRequired
     , init
     , inputErrorField
     , label
     , selectErrorField
-    , fieldRequired
-    , fieldOptional
     )
 
 import Atom.Input as Input exposing (Input)
@@ -50,7 +50,11 @@ type Contact
     | ContactPhone Phone
 
 
-decoder : Decoder Form Error Goat
+
+-- Decoder
+
+
+decoder : Decoder RegisterForm Error Goat
 decoder =
     Decoder.map5 Goat
         decoderName
@@ -60,7 +64,7 @@ decoder =
         decoderMessage
 
 
-decoderName : Decoder Form Error Name
+decoderName : Decoder RegisterForm Error Name
 decoderName =
     Name.decoder
         |> Decoder.mapError NameError
@@ -68,7 +72,7 @@ decoderName =
         |> Decoder.lift .name
 
 
-decoderAge : Decoder Form Error Age
+decoderAge : Decoder RegisterForm Error Age
 decoderAge =
     Age.decoder
         |> Decoder.mapError AgeError
@@ -76,7 +80,7 @@ decoderAge =
         |> Decoder.lift .age
 
 
-decoderHorns : Decoder Form Error Horns
+decoderHorns : Decoder RegisterForm Error Horns
 decoderHorns =
     Horns.decoder
         |> Decoder.mapError HornsError
@@ -84,7 +88,7 @@ decoderHorns =
         |> Decoder.lift .horns
 
 
-decoderMessage : Decoder Form Error (Maybe Message)
+decoderMessage : Decoder RegisterForm Error (Maybe Message)
 decoderMessage =
     Message.decoder
         |> Decoder.mapError MessageError
@@ -92,7 +96,7 @@ decoderMessage =
         |> Decoder.lift .message
 
 
-decoderContact : Decoder Form Error Contact
+decoderContact : Decoder RegisterForm Error Contact
 decoderContact =
     ContactType.decoder
         |> Decoder.mapError ContactTypeError
@@ -101,7 +105,7 @@ decoderContact =
         |> Decoder.andThen decoderContact_
 
 
-decoderContact_ : ContactType -> Decoder Form Error Contact
+decoderContact_ : ContactType -> Decoder RegisterForm Error Contact
 decoderContact_ ctype =
     case ctype of
         ContactType.UseEmail ->
@@ -113,7 +117,7 @@ decoderContact_ ctype =
                 decoderPhone
 
 
-decoderEmail : Decoder Form Error Email
+decoderEmail : Decoder RegisterForm Error Email
 decoderEmail =
     Email.decoder
         |> Decoder.mapError EmailError
@@ -121,7 +125,7 @@ decoderEmail =
         |> Decoder.lift .email
 
 
-decoderPhone : Decoder Form Error Phone
+decoderPhone : Decoder RegisterForm Error Phone
 decoderPhone =
     Phone.decoder
         |> Decoder.mapError PhoneError
@@ -133,7 +137,7 @@ decoderPhone =
 -- Form
 
 
-type alias Form =
+type alias RegisterForm =
     { name : Input
     , age : Input
     , horns : Input
@@ -144,7 +148,7 @@ type alias Form =
     }
 
 
-init : Form
+init : RegisterForm
 init =
     { name = Input.empty
     , age = Input.empty
@@ -234,8 +238,8 @@ inputErrorField f d i =
             Html.nothing
 
         Err errs ->
-            errorField
-                <| List.map f errs
+            errorField <|
+                List.map f errs
 
 
 selectErrorField : (err -> List String) -> Decoder String err a -> Select -> Html msg
@@ -245,20 +249,20 @@ selectErrorField f d i =
             Html.nothing
 
         Err errs ->
-            errorField
-                <| List.map f errs
+            errorField <|
+                List.map f errs
+
 
 errorField : List (List String) -> Html msg
 errorField errs =
-            List.map
-                ( Layout.wrap2 <<
-                         List.map (\s -> Html.p [ class "errorField_p" ] [ text s ])
-                )
-                errs
-                |> div
-                    [ class "errorField"
-                    ]
-
+    List.map
+        (Layout.wrap2
+            << List.map (\s -> Html.p [ class "errorField_p" ] [ text s ])
+        )
+        errs
+        |> div
+            [ class "errorField"
+            ]
 
 
 

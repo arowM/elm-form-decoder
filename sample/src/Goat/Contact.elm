@@ -6,9 +6,8 @@ module Goat.Contact exposing
     , toString
     )
 
-import Atom.Input exposing (Input)
 import Form.Decoder as Decoder exposing (Decoder)
-import Form.Validator as Validator exposing (Validator)
+import Form.Validator as Validator
 import ZenDigit
 
 

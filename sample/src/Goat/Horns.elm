@@ -6,7 +6,6 @@ module Goat.Horns exposing
     , toString
     )
 
-import Atom.Input exposing (Input)
 import Form.Decoder as Decoder exposing (Decoder)
 import ZenDigit
 

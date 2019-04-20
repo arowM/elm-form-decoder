@@ -6,7 +6,6 @@ module Goat.Email exposing
     , toString
     )
 
-import Atom.Input exposing (Input)
 import Email
 import Form.Decoder as Decoder exposing (Decoder)
 

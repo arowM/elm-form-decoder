@@ -1,15 +1,14 @@
 module Main exposing (main)
 
-import Atom.Input as Input exposing (Input)
-import Atom.Select as Select exposing (Select)
+import Atom.Input as Input
+import Atom.Select as Select
 import Browser
 import Browser.Navigation
 import Css
 import Form.Decoder as Decoder
 import Goat exposing (Goat)
 import Goat.Age
-import Goat.ContactType
-import Goat.ContactType as ContactType exposing (ContactType)
+import Goat.ContactType as ContactType
 import Goat.Email
 import Goat.Horns
 import Goat.Message
@@ -38,9 +37,10 @@ main =
 
 
 type alias Model =
-    { form : Goat.Form
+    { registerForm : Goat.RegisterForm
     , submitState : SubmitState
     }
+
 
 type SubmitState
     = UnSubmit
@@ -50,7 +50,7 @@ type SubmitState
 
 init : ( Model, Cmd Msg )
 init =
-    ( { form = Goat.init
+    ( { registerForm = Goat.init
       , submitState = UnSubmit
       }
     , Cmd.none
@@ -59,7 +59,7 @@ init =
 
 type
     Msg
-    -- Form
+    -- Register Form
     = ChangeName String
     | ChangeAge String
     | ChangeHorns String
@@ -71,64 +71,64 @@ type
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ form } as model) =
+update msg ({ registerForm } as model) =
     let
-        setForm : Goat.Form -> Model
-        setForm a =
-            { model | form = a }
+        setRegisterForm : Goat.RegisterForm -> Model
+        setRegisterForm a =
+            { model | registerForm = a }
     in
     case msg of
         ChangeName name ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | name = Input.fromString name
                 }
             , Cmd.none
             )
 
         ChangeAge age ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | age = Input.fromString age
                 }
             , Cmd.none
             )
 
         ChangeHorns horns ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | horns = Input.fromString horns
                 }
             , Cmd.none
             )
 
         ChangeEmail email ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | email = Input.fromString email
                 }
             , Cmd.none
             )
 
         ChangePhone phone ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | phone = Input.fromString phone
                 }
             , Cmd.none
             )
 
         ChangeMessage message ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | message = Input.fromString message
                 }
             , Cmd.none
             )
 
         ChangeContactType ctype ->
-            ( setForm
-                { form
+            ( setRegisterForm
+                { registerForm
                     | contactType = Select.fromString ctype
                 }
             , Cmd.none
@@ -136,20 +136,20 @@ update msg ({ form } as model) =
 
         SubmitRegister ->
             ( { model
-                | submitState = updateSubmitState form
+                | submitState = updateSubmitState registerForm
               }
-            , Browser.Navigation.load "#goat-form"
+            , Browser.Navigation.load "#goat-registerForm"
             )
 
 
-updateSubmitState : Goat.Form -> SubmitState
-updateSubmitState form =
-            case Decoder.run Goat.decoder form of
-                Ok g ->
-                    Submitted g
+updateSubmitState : Goat.RegisterForm -> SubmitState
+updateSubmitState registerForm =
+    case Decoder.run Goat.decoder registerForm of
+        Ok g ->
+            Submitted g
 
-                Err _ ->
-                    SubmitOnInvalid
+        Err _ ->
+            SubmitOnInvalid
 
 
 view : Model -> Html Msg
@@ -165,7 +165,7 @@ view model =
             [ div
                 [ class "body_inner"
                 ]
-                [ form_view model
+                [ registerForm_view model
                 ]
             ]
         ]
@@ -195,12 +195,12 @@ background =
 -- Form
 
 
-form_view : Model -> Html Msg
-form_view { form, submitState } =
+registerForm_view : Model -> Html Msg
+registerForm_view { registerForm, submitState } =
     let
         hasError : Goat.Error -> Bool
         hasError err =
-            case Decoder.run Goat.decoder form of
+            case Decoder.run Goat.decoder registerForm of
                 Ok _ ->
                     False
 
@@ -213,7 +213,7 @@ form_view { form, submitState } =
         [ Html.form
             [ Attributes.novalidate True
             , class "form_body"
-            , Attributes.id "goat-form"
+            , Attributes.id "goat-registerForm"
             , Attributes.boolAttribute "data-submitted" <| submitState == SubmitOnInvalid
             ]
             [ Layout.row
@@ -229,12 +229,12 @@ form_view { form, submitState } =
                             , type_ = "text"
                             , onChange = ChangeName
                             }
-                            form.name
+                            registerForm.name
                         ]
                     , Goat.inputErrorField
                         Goat.Name.errorField
                         Goat.Name.decoder
-                        form.name
+                        registerForm.name
                     ]
                 ]
             , Layout.row
@@ -250,12 +250,12 @@ form_view { form, submitState } =
                             , type_ = "text"
                             , onChange = ChangeAge
                             }
-                            form.age
+                            registerForm.age
                         ]
                     , Goat.inputErrorField
                         Goat.Age.errorField
                         Goat.Age.decoder
-                        form.age
+                        registerForm.age
                     ]
                 ]
             , Layout.row
@@ -271,12 +271,12 @@ form_view { form, submitState } =
                             , type_ = "text"
                             , onChange = ChangeHorns
                             }
-                            form.horns
+                            registerForm.horns
                         ]
                     , Goat.inputErrorField
                         Goat.Horns.errorField
                         Goat.Horns.decoder
-                        form.horns
+                        registerForm.horns
                     ]
                 ]
             , Layout.row
@@ -284,7 +284,7 @@ form_view { form, submitState } =
                 , Goat.control
                     [ Goat.description "How to contact you?"
                     , Goat.fieldRequired
-                        (hasError Goat.ContactTypeRequired)
+                        (hasError ContactTypeRequired)
                         "(required)"
                     , Layout.wrap2
                         [ Select.view
@@ -293,19 +293,19 @@ form_view { form, submitState } =
                                     :: List.map (\c -> ( ContactType.toLabel c, ContactType.toString c )) ContactType.enum
                             , onChange = ChangeContactType
                             }
-                            form.contactType
+                            registerForm.contactType
                         ]
                     , Goat.selectErrorField
-                        Goat.ContactType.errorField
-                        Goat.ContactType.decoder
-                        form.contactType
+                        ContactType.errorField
+                        ContactType.decoder
+                        registerForm.contactType
                     ]
                 ]
             , div
                 [ Mixin.row
                 , class "toggle-field"
                 , Attributes.boolAttribute "aria-hidden" <|
-                    Select.decodeField ContactType.decoder form.contactType
+                    Select.decodeField ContactType.decoder registerForm.contactType
                         /= Ok (Just ContactType.UseEmail)
                 ]
                 [ Goat.label "Email"
@@ -320,19 +320,19 @@ form_view { form, submitState } =
                             , type_ = "email"
                             , onChange = ChangeEmail
                             }
-                            form.email
+                            registerForm.email
                         ]
                     , Goat.inputErrorField
                         Goat.Email.errorField
                         Goat.Email.decoder
-                        form.email
+                        registerForm.email
                     ]
                 ]
             , div
                 [ Mixin.row
                 , class "toggle-field"
                 , Attributes.boolAttribute "aria-hidden" <|
-                    Select.decodeField ContactType.decoder form.contactType
+                    Select.decodeField ContactType.decoder registerForm.contactType
                         /= Ok (Just ContactType.UsePhone)
                 ]
                 [ Goat.label "Phone number"
@@ -347,12 +347,12 @@ form_view { form, submitState } =
                             , type_ = "tel"
                             , onChange = ChangePhone
                             }
-                            form.phone
+                            registerForm.phone
                         ]
                     , Goat.inputErrorField
                         Goat.Phone.errorField
                         Goat.Phone.decoder
-                        form.phone
+                        registerForm.phone
                     ]
                 ]
             , Layout.row
@@ -366,12 +366,12 @@ form_view { form, submitState } =
                             , type_ = "text"
                             , onChange = ChangeMessage
                             }
-                            form.message
+                            registerForm.message
                         ]
                     , Goat.inputErrorField
                         Goat.Message.errorField
                         Goat.Message.decoder
-                        form.message
+                        registerForm.message
                     ]
                 ]
             , div
@@ -381,13 +381,6 @@ form_view { form, submitState } =
                     [ class "button"
                     , Attributes.type_ "button"
                     , Events.onClick SubmitRegister
-                    -- , Attributes.disabled <|
-                    --     case Decoder.run Goat.decoder form of
-                    --         Err _ ->
-                    --             True
-
-                    --         _ ->
-                    --             False
                     ]
                     [ text "Register"
                     ]

@@ -1,6 +1,6 @@
 module StyleGuide exposing (main)
 
-import Atom.Input as Input exposing (Input)
+import Atom.Input as Input
 import Browser
 import Css
 import Html exposing (Attribute, Html, div, text)
