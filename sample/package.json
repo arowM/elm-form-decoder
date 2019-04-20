@@ -14,6 +14,7 @@
   },
   "scripts": {
     "start": "parcel src/index.html --public-url /",
+    "style-guide": "parcel src/style-guide.html -p 1235 --public-url /",
     "build": "parcel build src/*.html -d ../docs --public-url /elm-form-validator/",
     "format": "elm-format src",
     "test": "elm-analyse && elm-format --validate src/"

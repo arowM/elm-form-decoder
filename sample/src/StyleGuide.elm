@@ -1,11 +1,13 @@
 module StyleGuide exposing (main)
 
+import Atom.Input as Input exposing (Input)
 import Browser
+import Css
 import Html exposing (Attribute, Html, div, text)
 import Html.Attributes as Attributes exposing (href)
 import Html.Lazy exposing (lazy)
-import Input exposing (Input)
 import Layout
+import Layout.Mixin as Mixin
 import Markdown
 
 
@@ -86,57 +88,32 @@ chapterInput =
         , hashedSection "Default style"
         , Layout.wrap
             [ div
-                [ Layout.row
-                , Layout.alignCenter
+                [ Mixin.row
+                , Mixin.alignCenter
                 ]
                 [ Layout.wrap
                     [ text "Original"
                     ]
                 , div
-                    [ Layout.wrap
+                    [ Mixin.wrap
                     ]
                     [ input
                     ]
                 ]
             , div
-                [ Layout.row
-                , Layout.alignCenter
+                [ Mixin.row
+                , Mixin.alignCenter
                 ]
                 [ Layout.wrap
                     [ text "Expanded"
                     ]
                 , div
-                    [ Layout.expanded
-                    , Layout.wrap
+                    [ Mixin.expanded
+                    , Mixin.wrap
                     ]
                     [ input
                     ]
                 ]
-            ]
-        , hashedSection "Varidations"
-        , Layout.wrap
-            [ input_row []
-            , input_row [ Input.decorate "size1" ]
-            , input_row [ Input.decorate "size2" ]
-            , input_row [ Input.decorate "size3" ]
-            ]
-        ]
-
-
-input_row : List (Attribute Msg) -> Html Msg
-input_row attrs =
-    Layout.row
-        [ div
-            (Input.decorate "default" :: Layout.wrap :: attrs)
-            [ input
-            ]
-        , div
-            (Input.decorate "shadow1" :: Layout.wrap :: attrs)
-            [ input
-            ]
-        , div
-            (Input.decorate "dark" :: Layout.wrap :: attrs)
-            [ input
             ]
         ]
 
@@ -144,12 +121,10 @@ input_row attrs =
 input : Html Msg
 input =
     Input.view
-        (Input.config
-            { placeholder = "placeholder"
-            , type_ = "text"
-            , onChange = \_ -> ()
-            }
-        )
+        { placeholder = "placeholder"
+        , type_ = "text"
+        , onChange = \_ -> ()
+        }
         (Input.fromString "Sample")
 
 
@@ -276,13 +251,13 @@ view =
             ]
         , markdown """
 
-**Example 4.** By adding `Layout.expanded` to a wrapper `div`, the item is expanded horizontally.
+**Example 4.** By adding `Mixin.expanded` to a wrapper `div`, the item is expanded horizontally.
 
 ```elm
 view =
     Layout.row
         [ div
-            [ Layout.expanded ]
+            [ Mixin.expanded ]
             [ basicBlock ]
         , highBlock
         , basicBlock
@@ -292,7 +267,7 @@ view =
         , Layout.wrap
             [ Layout.row
                 [ div
-                    [ Layout.expanded ]
+                    [ Mixin.expanded ]
                     [ basicBlock ]
                 , highBlock
                 , basicBlock
@@ -300,14 +275,14 @@ view =
             ]
         , markdown """
 
-**Example 5.** To remain an item height stretched, add `Layout.fullHeight` to the wrapper `div`.
+**Example 5.** To remain an item height stretched, add `Mixin.fullHeight` to the wrapper `div`.
 
 ```elm
 view =
     Layout.row
         [ div
-            [ Layout.fullHeight
-            , Layout.expanded
+            [ Mixin.fullHeight
+            , Mixin.expanded
             ]
             [ basicBlock ]
         , highBlock
@@ -318,8 +293,8 @@ view =
         , Layout.wrap
             [ Layout.row
                 [ div
-                    [ Layout.fullHeight
-                    , Layout.expanded
+                    [ Mixin.fullHeight
+                    , Mixin.expanded
                     ]
                     [ basicBlock ]
                 , highBlock
@@ -334,7 +309,7 @@ view =
 view =
     Layout.row
         [ div
-            [ Layout.expanded
+            [ Mixin.expanded
             ]
             [ Layout.row
                 [ basicBlock
@@ -348,7 +323,7 @@ view =
         , Layout.wrap
             [ Layout.row
                 [ div
-                    [ Layout.expanded
+                    [ Mixin.expanded
                     ]
                     [ Layout.row
                         [ basicBlock
@@ -361,10 +336,10 @@ view =
         , hashedSection "Align Horizontally with More Precise Control"
         , markdown """
 
-To control alignments more preceisely, use `Layout.row`.
-In fact, `Layout.row = div [Laytou.row]`.
+To control alignments more preceisely, use `Mixin.row`.
+In fact, `Mixin.row = div [Laytou.row]`.
 
-The `Layout` module provides functions to manage alignments:
+The `Mixin` module provides functions to manage alignments:
 
 * functions with prefix `justify` specify vertical alignments
 * functions with prefix `align` specify vertical alignments
@@ -374,9 +349,9 @@ Here is samples:
 ```elm
 view =
     div
-        [ Layout.row
-        , Layout.justifyEnd
-        , Layout.alignCenter
+        [ Mixin.row
+        , Mixin.justifyEnd
+        , Mixin.alignCenter
         ]
         [ highBlock
         , basicBlock
@@ -386,9 +361,9 @@ view =
 """
         , Layout.wrap
             [ div
-                [ Layout.row
-                , Layout.justifyEnd
-                , Layout.alignCenter
+                [ Mixin.row
+                , Mixin.justifyEnd
+                , Mixin.alignCenter
                 ]
                 [ highBlock
                 , basicBlock
@@ -402,14 +377,14 @@ view =
         [ highBlock
         , basicBlock
         , div
-            [ Layout.row
-            , Layout.alignCenter
+            [ Mixin.row
+            , Mixin.alignCenter
             ]
             [ basicBlock
             ]
         , div
-            [ Layout.row
-            , Layout.alignEnd
+            [ Mixin.row
+            , Mixin.alignEnd
             ]
             [ basicBlock
             ]
@@ -422,14 +397,14 @@ view =
                 [ highBlock
                 , basicBlock
                 , div
-                    [ Layout.row
-                    , Layout.alignCenter
+                    [ Mixin.row
+                    , Mixin.alignCenter
                     ]
                     [ basicBlock
                     ]
                 , div
-                    [ Layout.row
-                    , Layout.alignEnd
+                    [ Mixin.row
+                    , Mixin.alignEnd
                     ]
                     [ basicBlock
                     ]
@@ -572,8 +547,8 @@ view =
             [ Layout.row
                 [ combinedBlock
                 , div
-                    [ Layout.fullHeight
-                    , Layout.expanded
+                    [ Mixin.fullHeight
+                    , Mixin.expanded
                     ]
                     [ incompleteBasicBlock
                     ]
@@ -595,8 +570,8 @@ view =
                     [ Layout.row
                         [ combinedBlock
                         , div
-                            [ Layout.fullHeight
-                            , Layout.expanded
+                            [ Mixin.fullHeight
+                            , Mixin.expanded
                             ]
                             [ incompleteBasicBlock
                             ]
@@ -708,7 +683,7 @@ hashedSection label =
 wrap : List (Html msg) -> Html msg
 wrap children =
     div
-        [ Layout.wrap
+        [ Mixin.wrap
         , class "boundary"
         ]
         children
@@ -731,8 +706,8 @@ subscriptions _ =
 It handles generated class name by CSS modules.
 -}
 class : String -> Attribute msg
-class name =
-    Attributes.class <| "style-guide__" ++ name
+class =
+    Css.classWithPrefix "style-guide__"
 
 
 markdown : String -> Html msg
@@ -748,4 +723,7 @@ markdown_ =
         , sanitize = False
         , smartypants = False
         }
-        [ class "markdown" ]
+    <|
+        List.concatMap Html.toAttributes
+            [ class "markdown"
+            ]
