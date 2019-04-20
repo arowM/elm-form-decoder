@@ -2,6 +2,7 @@ module Form.Decoder exposing
     ( Decoder
     , Validator
     , run
+    , errors
     , int
     , float
     , always
@@ -40,6 +41,7 @@ module Form.Decoder exposing
 # Decode functions
 
 @docs run
+@docs errors
 
 
 # Primitive decoders
@@ -112,7 +114,7 @@ type alias Validator input err =
 -- Decode functions
 
 
-{-| Basic decoder that decodes input by given decoder.
+{-| Basic function that decodes input by given decoder.
 
     run (int "Invalid") "foo"
     --> Err [ "Invalid" ]
@@ -124,6 +126,25 @@ type alias Validator input err =
 run : Decoder input err a -> input -> Result (List err) a
 run (Decoder f) a =
     f a
+
+
+{-| Checks if there are errors.
+
+    errors (int "Invalid") "foo"
+    --> [ "Invalid" ]
+
+    errors (int "Invalid") "34"
+    --> []
+
+-}
+errors : Decoder input err a -> input -> List err
+errors d a =
+    case run d a of
+        Ok _ ->
+            []
+
+        Err errs ->
+            errs
 
 
 
