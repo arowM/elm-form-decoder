@@ -226,7 +226,6 @@ registerForm_view { registerForm, submitState } =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "Sakura-chan"
-                            , type_ = "text"
                             , onChange = ChangeName
                             }
                             registerForm.name
@@ -247,7 +246,6 @@ registerForm_view { registerForm, submitState } =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "2"
-                            , type_ = "text"
                             , onChange = ChangeAge
                             }
                             registerForm.age
@@ -268,7 +266,6 @@ registerForm_view { registerForm, submitState } =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "0"
-                            , type_ = "text"
                             , onChange = ChangeHorns
                             }
                             registerForm.horns
@@ -317,7 +314,6 @@ registerForm_view { registerForm, submitState } =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "you-goat-a-mail@example.com"
-                            , type_ = "email"
                             , onChange = ChangeEmail
                             }
                             registerForm.email
@@ -344,7 +340,6 @@ registerForm_view { registerForm, submitState } =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "090-0000-0000"
-                            , type_ = "tel"
                             , onChange = ChangePhone
                             }
                             registerForm.phone
@@ -363,7 +358,6 @@ registerForm_view { registerForm, submitState } =
                     , Layout.wrap2
                         [ Input.view
                             { placeholder = "Hi! I'm Sakura-chan."
-                            , type_ = "text"
                             , onChange = ChangeMessage
                             }
                             registerForm.message

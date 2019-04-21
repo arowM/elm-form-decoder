@@ -81,12 +81,11 @@ fromString =
 {-| Configuration for atomic view.
 This is **NOT** state, which means that it is read only and you must not put `Config` in your model.
 
-  - `type_` -- "type" attribute for input tag.
+HTML5 type attribute acts a bit strange, so this module always specify "text" for "type" attribute.
 
 -}
 type alias Config msg =
     { placeholder : String
-    , type_ : String
     , onChange : String -> msg
     }
 
@@ -96,9 +95,9 @@ type alias Config msg =
 view : Config msg -> Input -> Html msg
 view conf (Input v) =
     input
-        [ Attributes.type_ conf.type_
-        , Attributes.placeholder conf.placeholder
+        [ Attributes.placeholder conf.placeholder
         , Attributes.value v
+        , Attributes.type_ "text"
         , Events.onChange conf.onChange
         , class "input"
         ]
