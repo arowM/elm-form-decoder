@@ -70,6 +70,7 @@ type
     | ChangeMessage String
     | ChangeContactType String
     | SubmitRegister
+    | RegisterAnotherGoat
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -139,6 +140,13 @@ update msg ({ registerForm } as model) =
         SubmitRegister ->
             onSubmitRegister model
 
+        RegisterAnotherGoat ->
+            ( { model
+                | pageState = Registering
+              }
+            , Cmd.none
+            )
+
 
 onSubmitRegister : Model -> ( Model, Cmd Msg )
 onSubmitRegister model =
@@ -147,8 +155,9 @@ onSubmitRegister model =
             ( { model
                 | pageState = ShowGoats
                 , goats = g :: model.goats
+                , registerForm = Goat.init
               }
-            , Cmd.none
+            , Browser.Navigation.load "#"
             )
 
         Err _ ->
@@ -174,7 +183,7 @@ view model =
                 ]
                 [ case model.pageState of
                     ShowGoats ->
-                        Goat.goats model.goats
+                        goats_view model.goats
 
                     Registering ->
                         registerForm_view False model
@@ -206,6 +215,26 @@ background =
         ]
 
 
+
+-- Goats
+
+goats_view : List Goat -> Html Msg
+goats_view goats =
+    div
+        []
+        [ Goat.goats goats
+        , div
+            [ class "row-button"
+            ]
+            [ button
+                [ class "button"
+                , Attributes.type_ "button"
+                , Events.onClick RegisterAnotherGoat
+                ]
+                [ text "Register another goat"
+                ]
+            ]
+        ]
 
 -- Form
 
@@ -343,6 +372,7 @@ registerForm_view verbose { registerForm } =
             [ Goat.label "Phone number"
             , Goat.control
                 [ Goat.description "Phone number to contact you."
+                , Goat.description "(Only Japanese-style mobile phone number)"
                 , Goat.fieldRequired
                     (hasError Goat.PhoneRequired)
                     "(required)"

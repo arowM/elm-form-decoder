@@ -179,18 +179,29 @@ type Error
     | MessageError Message.Error
 
 
+pageTitle : String -> Html msg
+pageTitle t =
+    Html.h1
+        [ class "pageTitle"
+        ]
+        [ text t
+        ]
+
 
 -- Atomic view only for listing registered goats
 
 
 goats : List Goat -> Html msg
 goats gs =
-    Keyed.node "div"
+    div
         [ class "goats"
         ]
-    <|
-        List.map keyedGoat gs
-
+        [ pageTitle "List of Goats"
+        , Keyed.node "div"
+            []
+        <|
+            List.map keyedGoat gs
+        ]
 
 keyedGoat : Goat -> ( String, Html msg )
 keyedGoat g =
@@ -200,24 +211,28 @@ keyedGoat g =
 goat : Goat -> Html msg
 goat g =
     div
-        [ class "goat"
+        [ class "goatWrapper"
         ]
-        [ goatField "Name" <| Name.toString g.name
-        , goatField "Age" <| Age.toString g.age
-        , goatField "Horns" <| Horns.toString g.horns
-        , case g.contact of
-            Contact.ContactEmail email ->
-                goatField "Email" <|
-                    Email.toString email
+        [ div
+            [ class "goat"
+            ]
+            [ goatField "Name" <| Name.toString g.name
+            , goatField "Age" <| Age.toString g.age
+            , goatField "Horns" <| Horns.toString g.horns
+            , case g.contact of
+                Contact.ContactEmail email ->
+                    goatField "Email" <|
+                        Email.toString email
 
-            Contact.ContactPhone phone ->
-                goatField "Phone" <|
-                    Phone.toString phone
+                Contact.ContactPhone phone ->
+                    goatField "Phone" <|
+                        Phone.toString phone
 
-        , Maybe.withDefault Html.nothing <|
-            Maybe.map
-                (goatField "Message" << Message.toString)
-                g.message
+            , Maybe.withDefault Html.nothing <|
+                Maybe.map
+                    (goatField "Message" << Message.toString)
+                    g.message
+            ]
         ]
 
 
@@ -246,15 +261,19 @@ goatField title content =
 registerForm : String -> Bool -> List (Html msg) -> Html msg
 registerForm id submitted children =
     div
-        [ class "form"
-        ]
-        [ Html.form
-            [ Attributes.novalidate True
-            , class "body"
-            , Attributes.id id
-            , Attributes.boolAttribute "data-submitted" submitted
+        []
+        [ pageTitle "Register new Goat"
+        , div
+            [ class "form"
             ]
-            children
+            [ Html.form
+                [ Attributes.novalidate True
+                , class "body"
+                , Attributes.id id
+                , Attributes.boolAttribute "data-submitted" submitted
+                ]
+                children
+            ]
         ]
 
 

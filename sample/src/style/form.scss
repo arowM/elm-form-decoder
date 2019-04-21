@@ -1,17 +1,26 @@
 @import 'mixin';
 @import 'variables';
 
+.pageTitle {
+  font-size: 1.6em;
+  font-weight: 800;
+  text-align: center;
+  padding: $half-padding;
+  color: $main-color4;
+  text-shadow: 0 0 3px $main-color0;
+}
+
 .form {
-  padding: calc(#{$half-padding} + 8px);
+  padding: calc(#{$half-padding} + 6px);
 
   .body {
-    width: calc(90vw - #{$default-padding} - 2 * 8px);
+    width: calc(90vw - #{$default-padding} - 2 * 6px);
     max-width: 60em;
     padding: $half-padding;
     opacity: 0.6;
     background-color: $background-color0;
     border-radius: 0.2em;
-    box-shadow: 0 0 8px 8px rgba($background-color0, 1);
+    box-shadow: 0 0 6px 6px rgba($background-color0, 1);
   }
 
   .label {
@@ -66,17 +75,17 @@
   }
 }
 
-.goats {
-  padding: calc(#{$half-padding} + 8px);
+.goatWrapper {
+  padding: calc(#{$half-padding} + 6px);
 
   .goat {
-    width: calc(90vw - #{$default-padding} - 2 * 8px);
+    width: calc(90vw - #{$default-padding} - 2 * 6px);
     max-width: 60em;
     padding: $half-padding;
     opacity: 0.6;
     background-color: $background-color0;
     border-radius: 0.2em;
-    box-shadow: 0 0 8px 8px rgba($background-color0, 1);
+    box-shadow: 0 0 6px 6px rgba($background-color0, 1);
   }
 
   .goatField {
