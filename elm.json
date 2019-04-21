@@ -3,7 +3,7 @@
     "name": "arowM/elm-form-decoder",
     "summary": "This library provides a scalable way to decode user inputs into neat structure.",
     "license": "MIT",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "exposed-modules": [
         "Form.Decoder"
     ],
