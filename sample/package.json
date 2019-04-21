@@ -13,7 +13,7 @@
     "sass": "^1.15.2"
   },
   "scripts": {
-    "start": "parcel src/index.html --public-url /",
+    "start": "parcel src/index.html",
     "style-guide": "parcel src/style-guide.html -p 1235 --public-url /",
     "build": "parcel build src/*.html -d ../docs --public-url /elm-form-decoder/",
     "format": "elm-format src",
