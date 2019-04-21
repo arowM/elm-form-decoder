@@ -39,24 +39,6 @@
 }
 
 /* ==============
- *  Form
- * ============== */
-
-.form {
-  padding: calc(#{$half-padding} + 8px);
-
-  &_body {
-    width: calc(90vw - #{$default-padding} - 2 * 8px);
-    max-width: 60em;
-    padding: $half-padding;
-    opacity: 0.6;
-    background-color: $background-color0;
-    border-radius: 0.2em;
-    box-shadow: 0 0 8px 8px rgba($background-color0, 1);
-  }
-}
-
-/* ==============
  *  Button
  * ============== */
 

@@ -207,177 +207,170 @@ registerForm_view { registerForm, submitState } =
                 Err errs ->
                     List.member err errs
     in
-    div
-        [ class "form"
-        ]
-        [ Html.form
-            [ Attributes.novalidate True
-            , class "form_body"
-            , Attributes.id "goat-registerForm"
-            , Attributes.boolAttribute "data-submitted" <| submitState == SubmitOnInvalid
-            ]
-            [ Layout.row
-                [ Goat.label "Name"
-                , Goat.control
-                    [ Goat.description "What's your name?"
-                    , Goat.fieldRequired
-                        (hasError Goat.NameRequired)
-                        "(required)"
-                    , Layout.wrap2
-                        [ Input.view
-                            { placeholder = "Sakura-chan"
-                            , onChange = ChangeName
-                            }
-                            registerForm.name
-                        ]
-                    , Goat.inputErrorField
-                        Goat.Name.errorField
-                        Goat.Name.decoder
+    Goat.registerForm
+        "goat-registerForm"
+        (submitState == SubmitOnInvalid)
+        [ Layout.row
+            [ Goat.label "Name"
+            , Goat.control
+                [ Goat.description "What's your name?"
+                , Goat.fieldRequired
+                    (hasError Goat.NameRequired)
+                    "(required)"
+                , Layout.wrap2
+                    [ Input.view
+                        { placeholder = "Sakura-chan"
+                        , onChange = ChangeName
+                        }
                         registerForm.name
                     ]
+                , Goat.inputErrorField
+                    Goat.Name.errorField
+                    Goat.Name.decoder
+                    registerForm.name
                 ]
-            , Layout.row
-                [ Goat.label "Age"
-                , Goat.control
-                    [ Goat.description "How old are you? [years old]"
-                    , Goat.fieldRequired
-                        (hasError Goat.AgeRequired)
-                        "(required)"
-                    , Layout.wrap2
-                        [ Input.view
-                            { placeholder = "2"
-                            , onChange = ChangeAge
-                            }
-                            registerForm.age
-                        ]
-                    , Goat.inputErrorField
-                        Goat.Age.errorField
-                        Goat.Age.decoder
+            ]
+        , Layout.row
+            [ Goat.label "Age"
+            , Goat.control
+                [ Goat.description "How old are you? [years old]"
+                , Goat.fieldRequired
+                    (hasError Goat.AgeRequired)
+                    "(required)"
+                , Layout.wrap2
+                    [ Input.view
+                        { placeholder = "2"
+                        , onChange = ChangeAge
+                        }
                         registerForm.age
                     ]
+                , Goat.inputErrorField
+                    Goat.Age.errorField
+                    Goat.Age.decoder
+                    registerForm.age
                 ]
-            , Layout.row
-                [ Goat.label "Horns"
-                , Goat.control
-                    [ Goat.description "How many horns do you have?"
-                    , Goat.fieldRequired
-                        (hasError Goat.HornsRequired)
-                        "(required)"
-                    , Layout.wrap2
-                        [ Input.view
-                            { placeholder = "0"
-                            , onChange = ChangeHorns
-                            }
-                            registerForm.horns
-                        ]
-                    , Goat.inputErrorField
-                        Goat.Horns.errorField
-                        Goat.Horns.decoder
+            ]
+        , Layout.row
+            [ Goat.label "Horns"
+            , Goat.control
+                [ Goat.description "How many horns do you have?"
+                , Goat.fieldRequired
+                    (hasError Goat.HornsRequired)
+                    "(required)"
+                , Layout.wrap2
+                    [ Input.view
+                        { placeholder = "0"
+                        , onChange = ChangeHorns
+                        }
                         registerForm.horns
                     ]
+                , Goat.inputErrorField
+                    Goat.Horns.errorField
+                    Goat.Horns.decoder
+                    registerForm.horns
                 ]
-            , Layout.row
-                [ Goat.label "Means of contact"
-                , Goat.control
-                    [ Goat.description "How to contact you?"
-                    , Goat.fieldRequired
-                        (hasError ContactTypeRequired)
-                        "(required)"
-                    , Layout.wrap2
-                        [ Select.view
-                            { options =
-                                ( Select.label "== Choose one ==", "" )
-                                    :: List.map (\c -> ( ContactType.toLabel c, ContactType.toString c )) ContactType.enum
-                            , onChange = ChangeContactType
-                            }
-                            registerForm.contactType
-                        ]
-                    , Goat.selectErrorField
-                        ContactType.errorField
-                        ContactType.decoder
+            ]
+        , Layout.row
+            [ Goat.label "Means of contact"
+            , Goat.control
+                [ Goat.description "How to contact you?"
+                , Goat.fieldRequired
+                    (hasError Goat.ContactTypeRequired)
+                    "(required)"
+                , Layout.wrap2
+                    [ Select.view
+                        { options =
+                            ( Select.label "== Choose one ==", "" )
+                                :: List.map (\c -> ( ContactType.toLabel c, ContactType.toString c )) ContactType.enum
+                        , onChange = ChangeContactType
+                        }
                         registerForm.contactType
                     ]
+                , Goat.selectErrorField
+                    ContactType.errorField
+                    ContactType.decoder
+                    registerForm.contactType
                 ]
-            , div
-                [ Mixin.row
-                , class "toggle-field"
-                , Attributes.boolAttribute "aria-hidden" <|
-                    Select.decodeField ContactType.decoder registerForm.contactType
-                        /= Ok (Just ContactType.UseEmail)
-                ]
-                [ Goat.label "Email"
-                , Goat.control
-                    [ Goat.description "Email address to contact you?"
-                    , Goat.fieldRequired
-                        (hasError Goat.EmailRequired)
-                        "(required)"
-                    , Layout.wrap2
-                        [ Input.view
-                            { placeholder = "you-goat-a-mail@example.com"
-                            , onChange = ChangeEmail
-                            }
-                            registerForm.email
-                        ]
-                    , Goat.inputErrorField
-                        Goat.Email.errorField
-                        Goat.Email.decoder
+            ]
+        , div
+            [ Mixin.row
+            , class "toggle-field"
+            , Attributes.boolAttribute "aria-hidden" <|
+                Select.decodeField ContactType.decoder registerForm.contactType
+                    /= Ok (Just ContactType.UseEmail)
+            ]
+            [ Goat.label "Email"
+            , Goat.control
+                [ Goat.description "Email address to contact you?"
+                , Goat.fieldRequired
+                    (hasError Goat.EmailRequired)
+                    "(required)"
+                , Layout.wrap2
+                    [ Input.view
+                        { placeholder = "you-goat-a-mail@example.com"
+                        , onChange = ChangeEmail
+                        }
                         registerForm.email
                     ]
+                , Goat.inputErrorField
+                    Goat.Email.errorField
+                    Goat.Email.decoder
+                    registerForm.email
                 ]
-            , div
-                [ Mixin.row
-                , class "toggle-field"
-                , Attributes.boolAttribute "aria-hidden" <|
-                    Select.decodeField ContactType.decoder registerForm.contactType
-                        /= Ok (Just ContactType.UsePhone)
-                ]
-                [ Goat.label "Phone number"
-                , Goat.control
-                    [ Goat.description "Phone number to contact you."
-                    , Goat.fieldRequired
-                        (hasError Goat.PhoneRequired)
-                        "(required)"
-                    , Layout.wrap2
-                        [ Input.view
-                            { placeholder = "090-0000-0000"
-                            , onChange = ChangePhone
-                            }
-                            registerForm.phone
-                        ]
-                    , Goat.inputErrorField
-                        Goat.Phone.errorField
-                        Goat.Phone.decoder
+            ]
+        , div
+            [ Mixin.row
+            , class "toggle-field"
+            , Attributes.boolAttribute "aria-hidden" <|
+                Select.decodeField ContactType.decoder registerForm.contactType
+                    /= Ok (Just ContactType.UsePhone)
+            ]
+            [ Goat.label "Phone number"
+            , Goat.control
+                [ Goat.description "Phone number to contact you."
+                , Goat.fieldRequired
+                    (hasError Goat.PhoneRequired)
+                    "(required)"
+                , Layout.wrap2
+                    [ Input.view
+                        { placeholder = "090-0000-0000"
+                        , onChange = ChangePhone
+                        }
                         registerForm.phone
                     ]
+                , Goat.inputErrorField
+                    Goat.Phone.errorField
+                    Goat.Phone.decoder
+                    registerForm.phone
                 ]
-            , Layout.row
-                [ Goat.label "Message"
-                , Goat.control
-                    [ Goat.description "Any messages?"
-                    , Goat.fieldOptional "(optional)"
-                    , Layout.wrap2
-                        [ Input.view
-                            { placeholder = "Hi! I'm Sakura-chan."
-                            , onChange = ChangeMessage
-                            }
-                            registerForm.message
-                        ]
-                    , Goat.inputErrorField
-                        Goat.Message.errorField
-                        Goat.Message.decoder
+            ]
+        , Layout.row
+            [ Goat.label "Message"
+            , Goat.control
+                [ Goat.description "Any messages?"
+                , Goat.fieldOptional "(optional)"
+                , Layout.wrap2
+                    [ Input.view
+                        { placeholder = "Hi! I'm Sakura-chan."
+                        , onChange = ChangeMessage
+                        }
                         registerForm.message
                     ]
+                , Goat.inputErrorField
+                    Goat.Message.errorField
+                    Goat.Message.decoder
+                    registerForm.message
                 ]
-            , div
-                [ class "row-button"
+            ]
+        , div
+            [ class "row-button"
+            ]
+            [ button
+                [ class "button"
+                , Attributes.type_ "button"
+                , Events.onClick SubmitRegister
                 ]
-                [ button
-                    [ class "button"
-                    , Attributes.type_ "button"
-                    , Events.onClick SubmitRegister
-                    ]
-                    [ text "Register"
-                    ]
+                [ text "Register"
                 ]
             ]
         ]

@@ -3,6 +3,7 @@ module Goat exposing
     , Error(..)
     , Goat
     , RegisterForm
+    , registerForm
     , control
     , decoder
     , description
@@ -182,6 +183,21 @@ type Error
 
 
 -- Atomic view only for this form
+
+
+registerForm : String -> Bool -> List (Html msg) -> Html msg
+registerForm id submitted children =
+    div
+        [ class "form"
+        ]
+        [ Html.form
+            [ Attributes.novalidate True
+            , class "body"
+            , Attributes.id id
+            , Attributes.boolAttribute "data-submitted" submitted
+            ]
+            children
+        ]
 
 
 label : String -> Html msg
