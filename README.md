@@ -156,17 +156,30 @@ errorText err =
         ]
 ```
 
-Next, build up decoder for `Form`.
+Next, lift decoders to consume `Form` type instead of `String`.
+
+```
+name_ : Decoder Form Error String
+name_ =
+    Decoder.lift .name name
+
+age_ : Decoder Form Error Int
+age_ =
+    Decoder.lift .age age
+```
+
+
+Finally, build up decoder for `Form`.
 
 ```elm
 form : Decoder Form Error Goat
 form =
     Decoder.top Goat
-        |> Decoder.field name
-        |> Decoder.field age
-        |> Decoder.field horns
-        |> Decoder.field contact
-        |> Decoder.field memo
+        |> Decoder.field name_
+        |> Decoder.field age_
+        |> Decoder.field horns_
+        |> Decoder.field contact_
+        |> Decoder.field memo_
 ```
 
 Wow, it's amazing!
