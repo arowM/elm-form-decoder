@@ -122,7 +122,6 @@ input : Html Msg
 input =
     Input.view
         { placeholder = "placeholder"
-        , type_ = "text"
         , onChange = \_ -> ()
         }
         (Input.fromString "Sample")
