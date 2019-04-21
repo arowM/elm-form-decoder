@@ -162,11 +162,11 @@ Next, build up decoder for `Form`.
 form : Decoder Form Error Goat
 form =
     Decoder.top Goat
-        |> field name
-        |> field age
-        |> field horns
-        |> field contact
-        |> field memo
+        |> Decoder.field name
+        |> Decoder.field age
+        |> Decoder.field horns
+        |> Decoder.field contact
+        |> Decoder.field memo
 ```
 
 Wow, it's amazing!
