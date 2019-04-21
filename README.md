@@ -10,7 +10,7 @@ Do you need form validation libraries?
 Wait! What you actually need would be form decoding library.
 
 This library provides a scalable way to decode user inputs into neat structure.
-In the process, it also do validations.
+In the process, it also does validations.
 
 ## What's form decoding?
 
