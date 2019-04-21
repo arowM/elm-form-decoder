@@ -38,20 +38,22 @@ main =
 
 type alias Model =
     { registerForm : Goat.RegisterForm
-    , submitState : SubmitState
+    , goats : List Goat
+    , pageState : PageState
     }
 
 
-type SubmitState
-    = UnSubmit
-    | SubmitOnInvalid
-    | Submitted Goat
+type PageState
+    = Registering
+    | FixingRegisterErrors
+    | ShowGoats
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { registerForm = Goat.init
-      , submitState = UnSubmit
+      , goats = []
+      , pageState = Registering
       }
     , Cmd.none
     )
@@ -135,21 +137,26 @@ update msg ({ registerForm } as model) =
             )
 
         SubmitRegister ->
+            onSubmitRegister model
+
+
+onSubmitRegister : Model -> ( Model, Cmd Msg )
+onSubmitRegister model =
+    case Decoder.run Goat.decoder model.registerForm of
+        Ok g ->
             ( { model
-                | submitState = updateSubmitState registerForm
+                | pageState = ShowGoats
+                , goats = g :: model.goats
+              }
+            , Cmd.none
+            )
+
+        Err _ ->
+            ( { model
+                | pageState = FixingRegisterErrors
               }
             , Browser.Navigation.load "#goat-registerForm"
             )
-
-
-updateSubmitState : Goat.RegisterForm -> SubmitState
-updateSubmitState registerForm =
-    case Decoder.run Goat.decoder registerForm of
-        Ok g ->
-            Submitted g
-
-        Err _ ->
-            SubmitOnInvalid
 
 
 view : Model -> Html Msg
@@ -165,7 +172,15 @@ view model =
             [ div
                 [ class "body_inner"
                 ]
-                [ registerForm_view model
+                [ case model.pageState of
+                    ShowGoats ->
+                        Goat.goats model.goats
+
+                    Registering ->
+                        registerForm_view False model
+
+                    FixingRegisterErrors ->
+                        registerForm_view True model
                 ]
             ]
         ]
@@ -195,8 +210,8 @@ background =
 -- Form
 
 
-registerForm_view : Model -> Html Msg
-registerForm_view { registerForm, submitState } =
+registerForm_view : Bool -> Model -> Html Msg
+registerForm_view verbose { registerForm } =
     let
         hasError : Goat.Error -> Bool
         hasError err =
@@ -209,7 +224,7 @@ registerForm_view { registerForm, submitState } =
     in
     Goat.registerForm
         "goat-registerForm"
-        (submitState == SubmitOnInvalid)
+        verbose
         [ Layout.row
             [ Goat.label "Name"
             , Goat.control

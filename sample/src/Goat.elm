@@ -1,17 +1,17 @@
 module Goat exposing
-    ( Contact(..)
-    , Error(..)
+    ( Error(..)
     , Goat
     , RegisterForm
-    , registerForm
     , control
     , decoder
     , description
     , fieldOptional
     , fieldRequired
+    , goats
     , init
     , inputErrorField
     , label
+    , registerForm
     , selectErrorField
     )
 
@@ -20,6 +20,7 @@ import Atom.Select as Select exposing (Select)
 import Css
 import Form.Decoder as Decoder exposing (Decoder)
 import Goat.Age as Age exposing (Age)
+import Goat.Contact as Contact exposing (Contact)
 import Goat.ContactType as ContactType exposing (ContactType)
 import Goat.Email as Email exposing (Email)
 import Goat.Horns as Horns exposing (Horns)
@@ -30,6 +31,8 @@ import Html exposing (Attribute, Html, div, text)
 import Html.Attributes as Attributes
 import Html.Attributes.More as Attributes
 import Html.Extra as Html
+import Html.Keyed as Keyed
+import Html.Lazy as Html
 import Layout
 
 
@@ -44,11 +47,6 @@ type alias Goat =
     , contact : Contact
     , message : Maybe Message
     }
-
-
-type Contact
-    = ContactEmail Email
-    | ContactPhone Phone
 
 
 
@@ -110,11 +108,11 @@ decoderContact_ : ContactType -> Decoder RegisterForm Error Contact
 decoderContact_ ctype =
     case ctype of
         ContactType.UseEmail ->
-            Decoder.map ContactEmail
+            Decoder.map Contact.ContactEmail
                 decoderEmail
 
         ContactType.UsePhone ->
-            Decoder.map ContactPhone
+            Decoder.map Contact.ContactPhone
                 decoderPhone
 
 
@@ -182,7 +180,67 @@ type Error
 
 
 
--- Atomic view only for this form
+-- Atomic view only for listing registered goats
+
+
+goats : List Goat -> Html msg
+goats gs =
+    Keyed.node "div"
+        [ class "goats"
+        ]
+    <|
+        List.map keyedGoat gs
+
+
+keyedGoat : Goat -> ( String, Html msg )
+keyedGoat g =
+    ( Contact.toString g.contact, Html.lazy goat g )
+
+
+goat : Goat -> Html msg
+goat g =
+    div
+        [ class "goat"
+        ]
+        [ goatField "Name" <| Name.toString g.name
+        , goatField "Age" <| Age.toString g.age
+        , goatField "Horns" <| Horns.toString g.horns
+        , case g.contact of
+            Contact.ContactEmail email ->
+                goatField "Email" <|
+                    Email.toString email
+
+            Contact.ContactPhone phone ->
+                goatField "Phone" <|
+                    Phone.toString phone
+
+        , Maybe.withDefault Html.nothing <|
+            Maybe.map
+                (goatField "Message" << Message.toString)
+                g.message
+        ]
+
+
+goatField : String -> String -> Html msg
+goatField title content =
+    div
+        [ class "goatField"
+        ]
+        [ div
+            [ class "goatTitle"
+            ]
+            [ text title
+            ]
+        , div
+            [ class "goatContent"
+            ]
+            [ text content
+            ]
+        ]
+
+
+
+-- Atomic view only for this register form
 
 
 registerForm : String -> Bool -> List (Html msg) -> Html msg

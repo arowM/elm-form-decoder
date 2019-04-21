@@ -3,65 +3,101 @@
 
 .form {
   padding: calc(#{$half-padding} + 8px);
-}
 
-.body {
-  width: calc(90vw - #{$default-padding} - 2 * 8px);
-  max-width: 60em;
-  padding: $half-padding;
-  opacity: 0.6;
-  background-color: $background-color0;
-  border-radius: 0.2em;
-  box-shadow: 0 0 8px 8px rgba($background-color0, 1);
-}
-
-.label {
-  padding: $half-padding;
-  padding-bottom: 0;
-  width: 10em;
-  font-size: 1.1em;
-  font-weight: 600;
-}
-
-.control {
-  flex: 1;
-  padding: $quarter-padding;
-  min-width: 16em;
+  .body {
+    width: calc(90vw - #{$default-padding} - 2 * 8px);
+    max-width: 60em;
+    padding: $half-padding;
+    opacity: 0.6;
+    background-color: $background-color0;
+    border-radius: 0.2em;
+    box-shadow: 0 0 8px 8px rgba($background-color0, 1);
+  }
 
   .label {
-    padding: $quarter-padding;
-    font-size: 1em;
+    padding: $half-padding;
+    padding-bottom: 0;
+    width: 10em;
+    font-size: 1.1em;
+    font-weight: 600;
   }
 
   .control {
-    padding: 0;
+    flex: 1;
+    padding: $quarter-padding;
+    min-width: 16em;
+
+    .label {
+      padding: $quarter-padding;
+      font-size: 1em;
+    }
+
+    .control {
+      padding: 0;
+    }
   }
-}
 
-.description {
-  padding: $quarter-padding;
+  .description {
+    padding: $quarter-padding;
 
-  ~ .subdescription {
-    padding-top: 0;
+    ~ .subdescription {
+      padding-top: 0;
+    }
   }
-}
 
-.subdescription {
-  font-size: 0.9em;
-  padding: $quarter-padding;
-  color: $notable-color;
-}
-
-[data-submitted="true"] {
   .subdescription {
-    &-required {
-      &[data-required-error="true"] {
-        @include errorText;
+    font-size: 0.9em;
+    padding: $quarter-padding;
+    color: $notable-color;
+  }
+
+  .body[data-submitted="true"] {
+    .subdescription {
+      &-required {
+        &[data-required-error="true"] {
+          @include errorText;
+        }
       }
+    }
+  }
+
+  .errorField {
+    @include errorText;
+  }
+}
+
+.goats {
+  padding: calc(#{$half-padding} + 8px);
+
+  .goat {
+    width: calc(90vw - #{$default-padding} - 2 * 8px);
+    max-width: 60em;
+    padding: $half-padding;
+    opacity: 0.6;
+    background-color: $background-color0;
+    border-radius: 0.2em;
+    box-shadow: 0 0 8px 8px rgba($background-color0, 1);
+  }
+
+  .goatField {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    border-bottom: solid 2px $background-color1;
+
+    .goatTitle {
+      padding: $half-padding;
+      padding-bottom: 0;
+      width: 10em;
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+
+    .goatContent {
+      flex: 1;
+      padding: $half-padding;
+      min-width: 16em;
     }
   }
 }
 
-.errorField {
-  @include errorText;
-}
