@@ -14,8 +14,19 @@
   z-index: $z-background;
 
   &_header {
-    background: #aaa; /* Old browsers */
+    /*
+    background: #aaa;
     background: linear-gradient(to bottom, #333 0%, #888 70%, #aaa 100%);
+    */
+    background-image: url("../img/background.jpg");
+    @media (max-width: $sp-size) {
+      background-image: url("../img/background@600.jpg");
+    }
+    @media (max-width: $tablet-size) {
+      background-image: url("../img/background@1000.jpg");
+    }
+    background-size: cover;
+    background-position: right bottom;
     height: 60vh;
   }
 }

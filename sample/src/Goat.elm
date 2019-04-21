@@ -261,7 +261,8 @@ goatField title content =
 registerForm : String -> Bool -> List (Html msg) -> Html msg
 registerForm id submitted children =
     div
-        []
+        [ Attributes.id id
+        ]
         [ pageTitle "Register new Goat"
         , div
             [ class "form"
@@ -269,7 +270,6 @@ registerForm id submitted children =
             [ Html.form
                 [ Attributes.novalidate True
                 , class "body"
-                , Attributes.id id
                 , Attributes.boolAttribute "data-submitted" submitted
                 ]
                 children
