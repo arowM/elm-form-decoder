@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "parcel src/index.html",
-    "style-guide": "parcel src/style-guide.html -p 1235 --public-url /",
+    "style-guide": "parcel src/style-guide.html -p 1235",
     "build": "parcel build src/*.html -d ../docs --public-url /elm-form-decoder/",
     "format": "elm-format src",
     "test": "elm-analyse && elm-format --validate src/"
