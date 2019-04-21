@@ -629,7 +629,7 @@ mapError f (Decoder g) =
 
 
 {-| Build up decoder for form.
-Use `mapN` directly if available.
+It can be used as `mapN`.
 
     mapN f d1 d2 d3 ... dN =
         top f
