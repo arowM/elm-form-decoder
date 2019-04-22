@@ -6,7 +6,7 @@
     "elm-analyse": "^0.16.0",
     "elm-format": "^0.8.1",
     "highlight.js": "^9.13.1",
-    "parcel-bundler": "^1.10.3",
+    "parcel-bundler": "^1.11.0",
     "postcss": "^7.0.6",
     "postcss-flexbugs-fixes": "^4.1.0",
     "postcss-modules": "^1.4.1",
