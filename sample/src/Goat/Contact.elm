@@ -3,8 +3,6 @@ module Goat.Contact exposing
     , toString
     )
 
-import Form.Decoder as Decoder exposing (Decoder)
-import Goat.ContactType exposing (ContactType)
 import Goat.Email as Email exposing (Email)
 import Goat.Phone as Phone exposing (Phone)
 

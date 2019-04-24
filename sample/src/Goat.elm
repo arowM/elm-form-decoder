@@ -188,6 +188,7 @@ pageTitle t =
         ]
 
 
+
 -- Atomic view only for listing registered goats
 
 
@@ -199,9 +200,10 @@ goats gs =
         [ pageTitle "List of Goats"
         , Keyed.node "div"
             []
-        <|
+          <|
             List.map keyedGoat gs
         ]
+
 
 keyedGoat : Goat -> ( String, Html msg )
 keyedGoat g =
@@ -227,7 +229,6 @@ goat g =
                 Contact.ContactPhone phone ->
                     goatField "Phone" <|
                         Phone.toString phone
-
             , Maybe.withDefault Html.nothing <|
                 Maybe.map
                     (goatField "Message" << Message.toString)

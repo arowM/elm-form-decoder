@@ -218,6 +218,7 @@ background =
 
 -- Goats
 
+
 goats_view : List Goat -> Html Msg
 goats_view goats =
     div
@@ -235,6 +236,8 @@ goats_view goats =
                 ]
             ]
         ]
+
+
 
 -- Form
 
