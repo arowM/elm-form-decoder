@@ -20,8 +20,7 @@ toString (Horns n) =
 
 
 type Error
-    = Empty
-    | InvalidInt
+    = InvalidInt
     | Negative
     | TooMany
 
@@ -31,11 +30,6 @@ type Error
 errorField : Error -> List String
 errorField err =
     case err of
-        Empty ->
-            [ "This field is required."
-            , "Please input."
-            ]
-
         InvalidInt ->
             [ "Invalid input."
             , "Please input integer."

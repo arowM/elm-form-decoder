@@ -20,8 +20,7 @@ toString =
 
 
 type Error
-    = Empty
-    | Invalid Email.Invalid
+    = Invalid Email.Invalid
 
 
 {-| Display error on input fields.
@@ -29,11 +28,6 @@ type Error
 errorField : Error -> List String
 errorField err =
     case err of
-        Empty ->
-            [ "This field is required."
-            , "Please input."
-            ]
-
         Invalid Email.NoAtmark ->
             [ "Email address should contain exactly one '@'."
             , "Please input valid email."
@@ -57,6 +51,4 @@ errorField err =
 
 decoder : Decoder String Error Email
 decoder =
-    Decoder.identity
-        |> Decoder.assert (Decoder.minLength Empty 1)
-        |> Decoder.andThen (\_ -> Decoder.mapError Invalid Email.decoder)
+    Decoder.mapError Invalid Email.decoder

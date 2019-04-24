@@ -20,8 +20,7 @@ toString =
 
 
 type Error
-    = Empty
-    | Invalid MobilePhone.Invalid
+    = Invalid MobilePhone.Invalid
 
 
 {-| Display error on input fields.
@@ -29,11 +28,6 @@ type Error
 errorField : Error -> List String
 errorField err =
     case err of
-        Empty ->
-            [ "This field is required."
-            , "Please input."
-            ]
-
         Invalid MobilePhone.InvalidLength ->
             [ "Invalid length of digits."
             , "Please input exactly 11 digits."
@@ -52,6 +46,4 @@ errorField err =
 
 decoder : Decoder String Error Phone
 decoder =
-    Decoder.identity
-        |> Decoder.assert (Decoder.minLength Empty 1)
-        |> Decoder.andThen (\_ -> Decoder.mapError Invalid MobilePhone.decoder)
+    Decoder.mapError Invalid MobilePhone.decoder
