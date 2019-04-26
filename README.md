@@ -14,6 +14,9 @@ In the process, it also does validations.
 
 ## What's form decoding?
 
+I've written a [blog post](https://arow.info/posts/2019/form-decoding/) about form decoding and brief introduction to elm-form-decoder.
+It would help you to understand.
+
 Say that you are building an SNS for goats.
 (exclude the problem how they use keyboards by their two-fingered hands.)
 
