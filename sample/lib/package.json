@@ -3,7 +3,7 @@
   "scripts": {
     "start": "elm-doc-preview -p 8001",
     "format": "elm-format src tests",
-    "test": "elm-analyse && elm-format --validate src tests && elm-test && elm-verify-examples"
+    "test": "elm-analyse && elm-format --validate src tests && elm make --docs=/tmp/docs.json && elm-test && elm-verify-examples"
   },
   "dependencies": {
     "elm": "^0.19.0-bugfix2",
