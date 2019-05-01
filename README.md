@@ -14,8 +14,9 @@ In the process, it also does validations.
 
 ## What's form decoding?
 
-I've written a [blog post](https://arow.info/posts/2019/form-decoding/) about form decoding and brief introduction to elm-form-decoder.
-It would help you to understand.
+Here is a [blog post](https://arow.info/posts/2019/form-decoding/) about form decoding and brief introduction to elm-form-decoder.
+
+## Example codes
 
 Say that you are building an SNS for goats.
 (exclude the problem how they use keyboards by their two-fingered hands.)
@@ -39,15 +40,7 @@ type Contact
     | ContactPhone PhoneNumber
 ```
 
-Suppose register form has a tab UI to choose email or phone as their contact info.
-e.g., if they choose "email" tab, input field for email address appears.
-It would be more user friendly if input value on email field remains as it was even when toggling tab back from phone number.
-
-One of the problem to realise such user friendly UIs is that it would be hard to use `Goat` type directly for forms that users create/update their profiles.
-For example, if a user input "foo" to the age field, how to handle the string value not existing in Model? Or how to remain email inputs after toggling tab to phone number?
-
-It is the time for form decoding!
-Let's declare a special type for profile forms.
+Next, let's declare a special type for profile forms.
 
 ```elm
 type alias Form
@@ -68,19 +61,9 @@ type SelectContact
     | SelectPhone
 ```
 
-As you can see, all input fields have type of `String`, which can hold any invalid format inputs such as "foo" on age field.
-It enables you to show error message like "foo is not an valid integer" at the input field because the Model has the acutal user input.
+Okay, it's time to _decode_ the `Form` type into `Goat` type.
 
-Another thing to note is that it can also remain input value on another tab of contact field because it has independent fields for both email address and phone number respectively.
-
-The "Form decoding" is the technique to convert _form types_, representing a form state (e.g., `Form` in this example), into _decoded types_, representing a type guaranteed that the value is valid (e.g., `Goat` in this example).
-Form validation is just a part of from decoding, so what you actually need would be *form decoding* library.
-
-## Example of form decoding
-
-Let's _decode_ the `Form` type into `Goat` type.
-
-First thing to do is declaring `Error` type.
+First thing to decode is declaring `Error` type.
 
 ```elm
 type Error
@@ -170,7 +153,6 @@ age_ : Decoder Form Error Int
 age_ =
     Decoder.lift .age age
 ```
-
 
 Finally, build up decoder for `Form`.
 
