@@ -27,6 +27,8 @@ module Form.Decoder exposing
     , mapError
     , andThen
     , with
+    , list
+    , array
     )
 
 {-| Main module that exports primitive decoders and helper functions for form decoding.
@@ -91,7 +93,17 @@ module Form.Decoder exposing
 @docs andThen
 @docs with
 
+
+# Helper functions for special situation
+
+@docs list
+@docs array
+
 -}
+
+import Array exposing (Array)
+
+
 
 -- Types
 
@@ -661,6 +673,10 @@ top f =
     custom <| \_ -> Ok f
 
 
+
+-- Advanced
+
+
 {-| Chain together a sequence of decoders.
 
     type Error
@@ -775,3 +791,103 @@ with f =
     custom <|
         \a ->
             run (f a) a
+
+
+
+-- Helper functions for specific situation
+
+
+{-| Supposed to be used for advanced input fields that user can append new input.
+
+For example, some forms would accept arbitrary number of email addresses by providing "Add" button to prepend new input field.
+![list-sample](https://user-images.githubusercontent.com/1481749/57004659-a1698d00-6c0b-11e9-83c6-1a17c998125c.png)
+
+    type Error
+        = TooShort
+        | TooLong
+
+    decoder : Decoder String Error String
+    decoder =
+        Form.Decoder.identity
+            |> assert (minLength TooShort 1)
+            |> assert (maxLength TooLong 5)
+
+    run (list decoder) [ "foo", "bar", "baz" ]
+    --> Ok [ "foo", "bar", "baz" ]
+
+    run (list decoder) [ "foo", "", "baz" ]
+    --> Err [ TooShort ]
+
+    run (list decoder) [ "foo", "", "bazbaz", "barbar" ]
+    --> Err [ TooShort, TooLong, TooLong ]
+
+-}
+list : Decoder a err b -> Decoder (List a) err (List b)
+list d =
+    custom <|
+        List.foldr prependListResult (Ok [])
+            << List.map (run d)
+
+
+prependListResult : Result (List err) b -> Result (List err) (List b) -> Result (List err) (List b)
+prependListResult r1 r2 =
+    case ( r1, r2 ) of
+        ( Err err, Err errs ) ->
+            Err (err ++ errs)
+
+        ( Err err, Ok _ ) ->
+            Err err
+
+        ( Ok _, Err errs ) ->
+            Err errs
+
+        ( Ok b, Ok bs ) ->
+            Ok (b :: bs)
+
+
+{-|
+
+    import Array
+
+    type Error
+        = TooShort
+        | TooLong
+
+    decoder : Decoder String Error String
+    decoder =
+        Form.Decoder.identity
+            |> assert (minLength TooShort 1)
+            |> assert (maxLength TooLong 5)
+
+    run (array decoder) <| Array.fromList [ "foo", "bar", "baz" ]
+    --> Ok <| Array.fromList [ "foo", "bar", "baz" ]
+
+    run (array decoder) <| Array.fromList [ "foo", "", "baz" ]
+    --> Err [ TooShort ]
+
+    run (array decoder) <| Array.fromList [ "foo", "", "bazbaz", "barbar" ]
+    --> Err [ TooShort, TooLong, TooLong ]
+
+-}
+array : Decoder a err b -> Decoder (Array a) err (Array b)
+array d =
+    custom <|
+        Result.mapError List.reverse
+            << Array.foldl pushArrayResult (Ok <| Array.fromList [])
+            << Array.map (run d)
+
+
+pushArrayResult : Result (List err) b -> Result (List err) (Array b) -> Result (List err) (Array b)
+pushArrayResult r1 r2 =
+    case ( r1, r2 ) of
+        ( Err err, Err errs ) ->
+            Err (err ++ errs)
+
+        ( Err err, Ok _ ) ->
+            Err err
+
+        ( Ok _, Err errs ) ->
+            Err errs
+
+        ( Ok b, Ok bs ) ->
+            Ok (Array.push b bs)
