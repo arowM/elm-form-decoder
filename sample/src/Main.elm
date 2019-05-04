@@ -354,7 +354,7 @@ registerForm_view verbose { registerForm } =
                     "(required)"
                 , Layout.wrap2
                     [ Input.view
-                        { placeholder = "you-goat-a-mail@example.com"
+                        { placeholder = "you-goat-mail@example.com"
                         , onChange = ChangeEmail
                         }
                         registerForm.email
