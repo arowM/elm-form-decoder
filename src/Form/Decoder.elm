@@ -109,7 +109,7 @@ import Array exposing (Array)
 
 
 {-| Core type representing a decoder.
-It decodes input into type `a`, raising error of type `err`.
+It decodes input into type `a`, while raising errors of type `err`.
 -}
 type Decoder input err a
     = Decoder (input -> Result (List err) a)
@@ -211,7 +211,7 @@ fail err =
     custom <| \_ -> Err [ err ]
 
 
-{-| Decoder into `Int`, raising `err` when a input is invalid for an integer.
+{-| Decoder into `Int`, while raising errors of type `err` when a input is invalid for an integer.
 
     run (int "Invalid") "foo"
     --> Err [ "Invalid" ]
@@ -231,7 +231,7 @@ int err =
     custom <| Result.fromMaybe [ err ] << String.toInt
 
 
-{-| Decoder into `Float`, raising `err` when a input is invalid for an float.
+{-| Decoder into `Float`, while raising errors of type `err` when a input is invalid for an float.
 
     run (float "Invalid") "foo"
     --> Err [ "Invalid" ]
@@ -476,7 +476,7 @@ unless g =
 -- Function to build up decoder for forms
 
 
-{-| `lift` is mainly used for accessing sub model of target value.
+{-| The `lift` function "lifts" a decoder up to operate on a larger structure.
 
     type alias Form =
         { field1 : String

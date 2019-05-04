@@ -120,7 +120,7 @@ age =
         |> Decoder.assert (Decoder.minBound AgeNegative 0)
 ```
 
-`Decoder input err out` indicates that the decoder consumes inputs of type `input` and converts it into `out`, raising errors of type `err`.
+`Decoder input err out` indicates that the decoder consumes inputs of type `input` and converts it into `out`, while raising errors of type `err`.
 
 These decoders also can be used to show errors on each input field.
 
