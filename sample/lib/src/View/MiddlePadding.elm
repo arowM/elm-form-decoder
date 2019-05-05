@@ -1,6 +1,7 @@
 module View.MiddlePadding exposing
     ( MiddlePadding
-    , toFullPadding
+    , fromNoPadding
+    , fromNarrowPadding
     )
 
 {-|
@@ -13,13 +14,15 @@ module View.MiddlePadding exposing
 
 # Lift functions
 
-@docs toFullPadding
+@docs fromNoPadding
+@docs fromNarrowPadding
 
 -}
 
 import View exposing (View)
-import View.FullPadding exposing (FullPadding)
 import View.Internal as Internal
+import View.NarrowPadding exposing (NarrowPadding)
+import View.NoPadding exposing (NoPadding)
 
 
 
@@ -37,9 +40,18 @@ type MiddlePadding
 
 
 {-| -}
-toFullPadding : View MiddlePadding msg -> View FullPadding msg
-toFullPadding =
+fromNoPadding : View NoPadding msg -> View NarrowPadding msg
+fromNoPadding =
     Internal.convert
-        ( Internal.middlePadding
-        , Internal.fullPadding
+        ( Internal.noPadding
+        , Internal.middlePadding
+        )
+
+
+{-| -}
+fromNarrowPadding : View NarrowPadding msg -> View MiddlePadding msg
+fromNarrowPadding =
+    Internal.convert
+        ( Internal.narrowPadding
+        , Internal.middlePadding
         )

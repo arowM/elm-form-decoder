@@ -1,6 +1,5 @@
 module View.Internal exposing
-    ( NoPadding
-    , View(..)
+    ( View(..)
     , class
     , convert
     , fromHtml
@@ -18,10 +17,6 @@ import Html exposing (Attribute, Html, div)
 
 type View padding msg
     = View (Html msg)
-
-
-type NoPadding
-    = NoPadding
 
 
 toHtml : View padding msg -> Html msg

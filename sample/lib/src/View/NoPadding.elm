@@ -2,9 +2,7 @@ module View.NoPadding exposing
     ( NoPadding
     , Atom
     , fromHtml
-    , toNarrowPadding
-    , toMiddlePadding
-    , toFullPadding
+    , text
     )
 
 {-|
@@ -17,20 +15,15 @@ module View.NoPadding exposing
 @docs fromHtml
 
 
-# Lift functions
+# Helper functions for Html
 
-@docs toNarrowPadding
-@docs toMiddlePadding
-@docs toFullPadding
+@docs text
 
 -}
 
 import Html exposing (Html)
 import View exposing (View)
-import View.FullPadding exposing (FullPadding)
 import View.Internal as Internal
-import View.MiddlePadding exposing (MiddlePadding)
-import View.NarrowPadding exposing (NarrowPadding)
 
 
 
@@ -39,8 +32,8 @@ import View.NarrowPadding exposing (NarrowPadding)
 
 {-| A type that indecates a view has no padding.
 -}
-type alias NoPadding =
-    Internal.NoPadding
+type NoPadding
+    = NoPadding
 
 
 {-| An alias for convenience.
@@ -57,31 +50,10 @@ fromHtml =
 
 
 
--- Lift functions
+-- Helper functions for Html
 
 
 {-| -}
-toNarrowPadding : View NoPadding msg -> View NarrowPadding msg
-toNarrowPadding =
-    Internal.convert
-        ( Internal.noPadding
-        , Internal.narrowPadding
-        )
-
-
-{-| -}
-toMiddlePadding : View NoPadding msg -> View NarrowPadding msg
-toMiddlePadding =
-    Internal.convert
-        ( Internal.noPadding
-        , Internal.middlePadding
-        )
-
-
-{-| -}
-toFullPadding : View NoPadding msg -> View NarrowPadding msg
-toFullPadding =
-    Internal.convert
-        ( Internal.noPadding
-        , Internal.fullPadding
-        )
+text : String -> Atom msg
+text =
+    Internal.fromHtml << Html.text

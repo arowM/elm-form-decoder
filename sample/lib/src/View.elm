@@ -2,8 +2,9 @@ module View exposing
     ( View
     , apply
     , map
+    , batch
+    , none
     , div
-    , text
     )
 
 {-| Main framework for managing paddings.
@@ -14,17 +15,18 @@ module View exposing
 @docs View
 @docs apply
 @docs map
+@docs batch
+@docs none
 
 
 # Helper functions for Html
 
 @docs div
-@docs text
 
 -}
 
 import Html exposing (Attribute, Html)
-import View.Internal as Internal exposing (NoPadding)
+import View.Internal as Internal
 
 
 {-| Html alternative that is aware of padding width in type level.
@@ -71,6 +73,18 @@ map =
     Internal.map
 
 
+{-| -}
+batch : List (View padding a) -> View padding a
+batch =
+    div []
+
+
+{-| -}
+none : View padding a
+none =
+    Internal.fromHtml <| Html.text ""
+
+
 
 -- Helper functions for Html
 
@@ -79,9 +93,3 @@ map =
 div : List (Attribute msg) -> List (View padding msg) -> View padding msg
 div =
     apply << Html.div
-
-
-{-| -}
-text : String -> View NoPadding msg
-text =
-    Internal.fromHtml << Html.text
