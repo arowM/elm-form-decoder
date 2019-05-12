@@ -41,11 +41,11 @@ type FullPadding
     = FullPadding
 
 
-{-| Takes a function to double padding and boundary.
+{-| Takes a function to set boundary.
 -}
 setBoundary : (Html msg -> Html msg) -> View FullPadding msg -> View NoPadding msg
 setBoundary f (Internal.View html) =
-    Internal.View <| f html
+    Internal.View <| f <| Internal.convertRaw ( Internal.noPadding, Internal.fullPadding ) html
 
 
 
@@ -53,7 +53,7 @@ setBoundary f (Internal.View html) =
 
 
 {-| -}
-fromNoPadding : View NoPadding msg -> View NarrowPadding msg
+fromNoPadding : View NoPadding msg -> View FullPadding msg
 fromNoPadding =
     Internal.convert
         ( Internal.noPadding

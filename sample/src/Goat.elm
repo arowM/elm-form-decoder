@@ -4,7 +4,6 @@ module Goat exposing
     , RegisterForm
     , control
     , decoder
-    , description
     , fieldOptional
     , fieldRequired
     , goats
@@ -27,13 +26,15 @@ import Goat.Horns as Horns exposing (Horns)
 import Goat.Message as Message exposing (Message)
 import Goat.Name as Name exposing (Name)
 import Goat.Phone as Phone exposing (Phone)
-import Html exposing (Attribute, Html, div, text)
+import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes
 import Html.Attributes.More as Attributes
 import Html.Extra as Html
-import Html.Keyed as Keyed
 import Html.Lazy as Html
-import Layout
+import View exposing (View)
+import View.FullPadding as FullPadding exposing (FullPadding)
+import View.MiddlePadding as MiddlePadding exposing (MiddlePadding)
+import View.NoPadding as NoPadding exposing (Atom)
 
 
 
@@ -179,79 +180,91 @@ type Error
     | MessageError Message.Error
 
 
-pageTitle : String -> Html msg
+pageTitle : String -> View FullPadding msg
 pageTitle t =
-    Html.h1
-        [ class "pageTitle"
-        ]
-        [ text t
-        ]
+    FullPadding.fromNoPadding <|
+        View.lift Html.h1
+            [ class "pageTitle"
+            ]
+            [ NoPadding.text t
+            ]
 
 
 
 -- Atomic view only for listing registered goats
 
 
-goats : List Goat -> Html msg
+goats : List Goat -> View FullPadding msg
 goats gs =
-    div
+    View.div
         [ class "goats"
         ]
         [ pageTitle "List of Goats"
-        , Keyed.node "div"
+        , View.keyed "div"
             []
           <|
             List.map keyedGoat gs
         ]
 
 
-keyedGoat : Goat -> ( String, Html msg )
+keyedGoat : Goat -> ( String, View FullPadding msg )
 keyedGoat g =
-    ( Contact.toString g.contact, Html.lazy goat g )
+    ( Contact.toString g.contact, View.lazy goat g )
 
 
-goat : Goat -> Html msg
+goat : Goat -> View FullPadding msg
 goat g =
-    div
-        [ class "goatWrapper"
-        ]
-        [ div
-            [ class "goat"
+    FullPadding.fromNoPadding <|
+        View.div
+            [ class "goatWrapper"
             ]
-            [ goatField "Name" <| Name.toString g.name
-            , goatField "Age" <| Age.toString g.age
-            , goatField "Horns" <| Horns.toString g.horns
-            , case g.contact of
-                Contact.ContactEmail email ->
-                    goatField "Email" <|
-                        Email.toString email
+            [ FullPadding.setBoundary goatBoundary <|
+                View.batch
+                    [ goatField "Name" <| Name.toString g.name
+                    , goatField "Age" <| Age.toString g.age
+                    , goatField "Horns" <| Horns.toString g.horns
+                    , case g.contact of
+                        Contact.ContactEmail email ->
+                            goatField "Email" <|
+                                Email.toString email
 
-                Contact.ContactPhone phone ->
-                    goatField "Phone" <|
-                        Phone.toString phone
-            , Maybe.withDefault Html.nothing <|
-                Maybe.map
-                    (goatField "Message" << Message.toString)
-                    g.message
+                        Contact.ContactPhone phone ->
+                            goatField "Phone" <|
+                                Phone.toString phone
+                    , Maybe.withDefault View.none <|
+                        Maybe.map
+                            (goatField "Message" << Message.toString)
+                            g.message
+                    ]
             ]
+
+
+goatBoundary : Html msg -> Html msg
+goatBoundary html =
+    Html.div
+        [ class "goat"
+        ]
+        [ html
         ]
 
 
-goatField : String -> String -> Html msg
+goatField : String -> String -> View FullPadding msg
 goatField title content =
-    div
+    View.div
         [ class "goatField"
         ]
-        [ div
-            [ class "goatTitle"
-            ]
-            [ text title
-            ]
-        , div
-            [ class "goatContent"
-            ]
-            [ text content
-            ]
+        [ FullPadding.fromNoPadding <|
+            View.div
+                [ class "goatTitle"
+                ]
+                [ NoPadding.text title
+                ]
+        , FullPadding.fromNoPadding <|
+            View.div
+                [ class "goatContent"
+                ]
+                [ NoPadding.text content
+                ]
         ]
 
 
@@ -259,104 +272,139 @@ goatField title content =
 -- Atomic view only for this register form
 
 
-registerForm : String -> Bool -> List (Html msg) -> Html msg
+registerForm : String -> Bool -> List (View FullPadding msg) -> View FullPadding msg
 registerForm id submitted children =
-    div
+    View.div
         [ Attributes.id id
         ]
         [ pageTitle "Register new Goat"
-        , div
-            [ class "form"
-            ]
-            [ Html.form
-                [ Attributes.novalidate True
-                , class "body"
+        , FullPadding.fromNoPadding <|
+            View.lift Html.form
+                [ class "form"
+                , Attributes.novalidate True
                 , Attributes.boolAttribute "data-submitted" submitted
                 ]
-                children
-            ]
+                [ FullPadding.setBoundary bodyBoundary <|
+                    View.div
+                        [ class "body_inner"
+                        ]
+                        children
+                ]
         ]
 
 
-label : String -> Html msg
+bodyBoundary : Html msg -> Html msg
+bodyBoundary html =
+    Html.div
+        [ class "body"
+        ]
+        [ html
+        ]
+
+
+label : String -> View FullPadding msg
 label str =
-    div
-        [ class "label"
-        ]
-        [ text str
-        ]
+    FullPadding.fromNoPadding <|
+        View.div
+            [ class "label"
+            ]
+            [ NoPadding.text str
+            ]
 
 
-control : List (Html msg) -> Html msg
+control : List (View MiddlePadding msg) -> View MiddlePadding msg
 control children =
-    div
+    View.div
         [ class "control"
         ]
         children
 
 
-description : String -> Html msg
+description : String -> Atom msg
 description str =
-    div
+    View.div
         [ class "description"
         ]
-        [ text str
+        [ NoPadding.text str
         ]
 
 
-fieldRequired : Bool -> String -> Html msg
-fieldRequired b str =
-    div
-        [ class "subdescription"
-        , class "subdescription-required"
-        , Attributes.boolAttribute "data-required-error" b
-        ]
-        [ text str
-        ]
+fieldRequired : Bool -> List String -> View MiddlePadding msg
+fieldRequired b desc =
+    MiddlePadding.fromNoPadding <|
+        View.batch
+            [ View.batch <|
+                List.map description desc
+            , View.div
+                [ class "subdescription"
+                , class "subdescription-required"
+                , Attributes.boolAttribute "data-required-error" b
+                ]
+                [ NoPadding.text "(required)"
+                ]
+            ]
 
 
-fieldOptional : String -> Html msg
-fieldOptional str =
-    div
-        [ class "subdescription"
-        , class "subdescription-optional"
-        ]
-        [ text str
-        ]
+fieldOptional : List String -> View MiddlePadding msg
+fieldOptional desc =
+    MiddlePadding.fromNoPadding <|
+        View.batch
+            [ View.batch <|
+                List.map description desc
+            , View.div
+                [ class "subdescription"
+                , class "subdescription-optional"
+                ]
+                [ NoPadding.text "(optional)"
+                ]
+            ]
 
 
-inputErrorField : (err -> List String) -> Decoder String err a -> Input -> Html msg
+inputErrorField : (err -> List String) -> Decoder String err a -> Input -> View MiddlePadding msg
 inputErrorField f d i =
     case Input.decodeField d i of
         Ok _ ->
-            Html.nothing
+            View.none
 
         Err errs ->
             errorField <|
                 List.map f errs
 
 
-selectErrorField : (err -> List String) -> Decoder String err a -> Select -> Html msg
+selectErrorField : (err -> List String) -> Decoder String err a -> Select -> View MiddlePadding msg
 selectErrorField f d i =
     case Select.decodeField d i of
         Ok _ ->
-            Html.nothing
+            View.none
 
         Err errs ->
             errorField <|
                 List.map f errs
 
 
-errorField : List (List String) -> Html msg
+errorField : List (List String) -> View MiddlePadding msg
 errorField errs =
-    List.map
-        (Layout.wrap2
-            << List.map (\s -> Html.p [ class "errorField_p" ] [ text s ])
-        )
-        errs
-        |> div
-            [ class "errorField"
-            ]
+    View.div
+        [ class "errorField"
+        ]
+    <|
+        List.map
+            (MiddlePadding.fromNoPadding << errorFieldP)
+            errs
+
+
+errorFieldP : List String -> Atom msg
+errorFieldP ls =
+    View.batch <|
+        List.map
+            (\s ->
+                View.lift Html.p
+                    [ class "errorField_p"
+                    ]
+                    [ NoPadding.text s
+                    ]
+            )
+            ls
 
 
 

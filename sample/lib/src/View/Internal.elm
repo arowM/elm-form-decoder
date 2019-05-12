@@ -2,6 +2,7 @@ module View.Internal exposing
     ( View(..)
     , class
     , convert
+    , convertRaw
     , fromHtml
     , fullPadding
     , map
@@ -30,15 +31,20 @@ fromHtml =
 
 
 convert : ( String, String ) -> View p1 msg -> View p2 msg
-convert ( from, to ) (View html) =
+convert fromTo (View html) =
     View <|
-        div
-            [ class "convert"
-            , class from
-            , class to
-            ]
-            [ html
-            ]
+        convertRaw fromTo html
+
+
+convertRaw : ( String, String ) -> Html msg -> Html msg
+convertRaw ( from, to ) html =
+    div
+        [ class "convert"
+        , class from
+        , class to
+        ]
+        [ html
+        ]
 
 
 noPadding : String

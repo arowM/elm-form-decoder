@@ -5,26 +5,27 @@
   font-size: 1.6em;
   font-weight: 800;
   text-align: center;
-  padding: $half-padding;
   color: $main-color4;
   text-shadow: 0 0 3px $main-color0;
 }
 
 .form {
-  padding: calc(#{$half-padding} + 6px);
+  padding: 6px;
 
   .body {
     width: calc(90vw - #{$default-padding} - 2 * 6px);
     max-width: 60em;
-    padding: $half-padding;
     opacity: 0.8;
     background-color: $background-color0;
     border-radius: 0.2em;
     box-shadow: 0 0 6px 6px rgba($background-color0, 1);
+
+    &_inner {
+      margin: -6px;
+    }
   }
 
   .label {
-    padding: $half-padding;
     padding-bottom: 0;
     width: 10em;
     font-size: 1.1em;
@@ -32,35 +33,15 @@
   }
 
   .control {
-    flex: 1;
-    padding: $quarter-padding;
     min-width: 16em;
-
-    .label {
-      padding: $quarter-padding;
-      font-size: 1em;
-    }
-
-    .control {
-      padding: 0;
-    }
-  }
-
-  .description {
-    padding: $quarter-padding;
-
-    ~ .subdescription {
-      padding-top: 0;
-    }
   }
 
   .subdescription {
     font-size: 0.9em;
-    padding: $quarter-padding;
     color: $notable-color;
   }
 
-  .body[data-submitted="true"] {
+  &[data-submitted="true"] {
     .subdescription {
       &-required {
         &[data-required-error="true"] {
@@ -76,12 +57,11 @@
 }
 
 .goatWrapper {
-  padding: calc(#{$half-padding} + 6px);
+  padding: 6px;
 
   .goat {
     width: calc(90vw - #{$default-padding} - 2 * 6px);
     max-width: 60em;
-    padding: $half-padding;
     opacity: 0.8;
     background-color: $background-color0;
     border-radius: 0.2em;
@@ -95,7 +75,6 @@
     border-bottom: solid 2px $background-color1;
 
     .goatTitle {
-      padding: $half-padding;
       padding-bottom: 0;
       width: 10em;
       font-size: 1.1em;
@@ -103,8 +82,6 @@
     }
 
     .goatContent {
-      flex: 1;
-      padding: $half-padding;
       min-width: 16em;
     }
   }

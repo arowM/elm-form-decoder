@@ -2,6 +2,7 @@ module View.NoPadding exposing
     ( NoPadding
     , Atom
     , fromHtml
+    , toHtml
     , text
     )
 
@@ -13,6 +14,7 @@ module View.NoPadding exposing
 @docs NoPadding
 @docs Atom
 @docs fromHtml
+@docs toHtml
 
 
 # Helper functions for Html
@@ -47,6 +49,12 @@ type alias Atom msg =
 fromHtml : Html msg -> View NoPadding msg
 fromHtml =
     Internal.fromHtml
+
+
+{-| -}
+toHtml : View NoPadding msg -> Html msg
+toHtml =
+    Internal.toHtml
 
 
 

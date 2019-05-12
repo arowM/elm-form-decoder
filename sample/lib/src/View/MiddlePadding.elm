@@ -40,7 +40,7 @@ type MiddlePadding
 
 
 {-| -}
-fromNoPadding : View NoPadding msg -> View NarrowPadding msg
+fromNoPadding : View NoPadding msg -> View MiddlePadding msg
 fromNoPadding =
     Internal.convert
         ( Internal.noPadding
