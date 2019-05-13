@@ -50,6 +50,7 @@ import Html.Attributes as Attributes
 import Html.Events as Events
 import Html.Events.Extra as Events
 import Html.Lazy exposing (lazy2)
+import View.NoPadding as NoPadding exposing (Atom)
 
 
 
@@ -123,19 +124,20 @@ type alias Config msg =
 
 {-| Atomic view for select box.
 -}
-view : Config msg -> Select -> Html msg
+view : Config msg -> Select -> Atom msg
 view conf (Select v) =
-    select
-        [ Attributes.value v
-        , Events.onInput conf.onChange
-        , class "select"
-        ]
-    <|
-        List.map
-            (\( Label str, value ) ->
-                lazy2 option str value
-            )
-            conf.options
+    NoPadding.fromHtml <|
+        select
+            [ Attributes.value v
+            , Events.onInput conf.onChange
+            , class "select"
+            ]
+        <|
+            List.map
+                (\( Label str, value ) ->
+                    lazy2 option str value
+                )
+                conf.options
 
 
 option : String -> String -> Html msg

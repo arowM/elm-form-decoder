@@ -13,6 +13,13 @@
             "Layout",
             "Layout.Mixin"
         ],
+        "Padding": [
+            "View",
+            "View.NoPadding",
+            "View.NarrowPadding",
+            "View.MiddlePadding",
+            "View.FullPadding"
+        ],
         "Common Types": [
             "Email",
             "MobilePhone"
