@@ -23,7 +23,7 @@ module View.FullPadding exposing
 
 -}
 
-import Html exposing (Html)
+import Html exposing (Attribute, Html)
 import View exposing (View)
 import View.Internal as Internal
 import View.MiddlePadding exposing (MiddlePadding)
@@ -43,9 +43,11 @@ type FullPadding
 
 {-| Takes a function to set boundary.
 -}
-setBoundary : (Html msg -> Html msg) -> View FullPadding msg -> View NoPadding msg
-setBoundary f (Internal.View html) =
-    Internal.View <| f <| Internal.convertRaw ( Internal.noPadding, Internal.fullPadding ) html
+setBoundary : (List (Attribute msg) -> List (Html msg) -> Html msg) -> List (Attribute msg) -> List (View FullPadding msg) -> View NoPadding msg
+setBoundary node attrs children =
+    Internal.fromHtml <|
+        node attrs <|
+            List.map Internal.toHtml children
 
 
 

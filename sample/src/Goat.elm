@@ -218,34 +218,26 @@ goat g =
         View.div
             [ class "goatWrapper"
             ]
-            [ FullPadding.setBoundary goatBoundary <|
-                View.batch
-                    [ goatField "Name" <| Name.toString g.name
-                    , goatField "Age" <| Age.toString g.age
-                    , goatField "Horns" <| Horns.toString g.horns
-                    , case g.contact of
-                        Contact.ContactEmail email ->
-                            goatField "Email" <|
-                                Email.toString email
+            [ FullPadding.setBoundary Html.div
+                [ class "goat"
+                ]
+                [ goatField "Name" <| Name.toString g.name
+                , goatField "Age" <| Age.toString g.age
+                , goatField "Horns" <| Horns.toString g.horns
+                , case g.contact of
+                    Contact.ContactEmail email ->
+                        goatField "Email" <|
+                            Email.toString email
 
-                        Contact.ContactPhone phone ->
-                            goatField "Phone" <|
-                                Phone.toString phone
-                    , Maybe.withDefault View.none <|
-                        Maybe.map
-                            (goatField "Message" << Message.toString)
-                            g.message
-                    ]
+                    Contact.ContactPhone phone ->
+                        goatField "Phone" <|
+                            Phone.toString phone
+                , Maybe.withDefault View.none <|
+                    Maybe.map
+                        (goatField "Message" << Message.toString)
+                        g.message
+                ]
             ]
-
-
-goatBoundary : Html msg -> Html msg
-goatBoundary html =
-    Html.div
-        [ class "goat"
-        ]
-        [ html
-        ]
 
 
 goatField : String -> String -> View FullPadding msg
@@ -284,21 +276,15 @@ registerForm id submitted children =
                 , Attributes.novalidate True
                 , Attributes.boolAttribute "data-submitted" submitted
                 ]
-                [ FullPadding.setBoundary bodyBoundary <|
-                    View.div
+                [ FullPadding.setBoundary Html.div
+                    [ class "body"
+                    ]
+                    [ View.div
                         [ class "body_inner"
                         ]
                         children
+                    ]
                 ]
-        ]
-
-
-bodyBoundary : Html msg -> Html msg
-bodyBoundary html =
-    Html.div
-        [ class "body"
-        ]
-        [ html
         ]
 
 

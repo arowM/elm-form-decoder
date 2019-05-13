@@ -177,18 +177,12 @@ view model =
         View.div
             [ class "wrapper" ]
             [ background
-            , FullPadding.setBoundary
-                (\h ->
-                    div
-                        [ Mixin.row
-                        , Mixin.justifyCenter
-                        , class "body"
-                        ]
-                        [ h
-                        ]
-                )
-              <|
-                View.div
+            , FullPadding.setBoundary div
+                [ Mixin.row
+                , Mixin.justifyCenter
+                , class "body"
+                ]
+                [ View.div
                     [ class "body_inner"
                     ]
                     [ case model.pageState of
@@ -201,6 +195,7 @@ view model =
                         FixingRegisterErrors ->
                             registerForm_view True model
                     ]
+                ]
             ]
 
 
