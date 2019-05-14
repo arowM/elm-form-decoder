@@ -46,8 +46,9 @@ type FullPadding
 setBoundary : (List (Attribute msg) -> List (Html msg) -> Html msg) -> List (Attribute msg) -> List (View FullPadding msg) -> View NoPadding msg
 setBoundary node attrs children =
     Internal.fromHtml <|
-        node attrs <|
-            List.map Internal.toHtml children
+        \extra ->
+            node (attrs ++ extra) <|
+                List.map (Internal.toHtml []) children
 
 
 

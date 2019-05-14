@@ -47,14 +47,14 @@ type alias Atom msg =
 {-| Make sure to provide Html that has no padding.
 -}
 fromHtml : Html msg -> View NoPadding msg
-fromHtml =
-    Internal.fromHtml
+fromHtml html =
+    Internal.fromHtml <| \attr -> Html.div attr [ html ]
 
 
 {-| -}
 toHtml : View NoPadding msg -> Html msg
 toHtml =
-    Internal.toHtml
+    Internal.toHtml []
 
 
 
@@ -63,5 +63,5 @@ toHtml =
 
 {-| -}
 text : String -> Atom msg
-text =
-    Internal.fromHtml << Html.text
+text str =
+    Internal.fromHtml <| \_ -> Html.text str
