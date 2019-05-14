@@ -1,6 +1,5 @@
 {
   "checks" : {
-    "SingleFieldRecord": false,
-    "UnusedValueConstructor": false
+    "SingleFieldRecord": false
   }
 }

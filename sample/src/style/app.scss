@@ -38,6 +38,8 @@
   width: 100%;
 
   &_inner {
+    padding: $half-padding;
+
     &::before {
       content: '';
       display: block;
@@ -74,4 +76,5 @@
 
 .row-button {
   text-align: right;
+  padding: $half-padding;
 }

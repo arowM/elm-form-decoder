@@ -37,11 +37,10 @@ module Atom.Input exposing
 
 import Css
 import Form.Decoder as Decoder exposing (Decoder)
-import Html exposing (Attribute, input)
+import Html exposing (Attribute, Html, input)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Html.Events.Extra as Events
-import View.NoPadding as NoPadding exposing (Atom)
 
 
 
@@ -93,17 +92,16 @@ type alias Config msg =
 
 {-| Atomic view for input box.
 -}
-view : Config msg -> Input -> Atom msg
+view : Config msg -> Input -> Html msg
 view conf (Input v) =
-    NoPadding.fromHtml <|
-        input
-            [ Attributes.placeholder conf.placeholder
-            , Attributes.value v
-            , Attributes.type_ "text"
-            , Events.onChange conf.onChange
-            , class "input"
-            ]
-            []
+    input
+        [ Attributes.placeholder conf.placeholder
+        , Attributes.value v
+        , Attributes.type_ "text"
+        , Events.onChange conf.onChange
+        , class "input"
+        ]
+        []
 
 
 

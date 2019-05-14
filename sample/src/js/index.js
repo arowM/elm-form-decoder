@@ -1,5 +1,4 @@
 require('../style/reset.scss');
-require('../style/view.scss');
 require('../style/layout.scss');
 require('../style/app.scss');
 require('../style/form.scss');
