@@ -209,7 +209,12 @@ goats gs =
 
 keyedGoat : Goat -> ( String, View FullPadding msg )
 keyedGoat g =
-    ( Contact.toString g.contact, View.lazy goat g )
+    ( Contact.toString g.contact, View.fromHtml <| Html.lazy goat_ g )
+
+
+goat_ : Goat -> Html msg
+goat_ g =
+    View.toHtml <| goat g
 
 
 goat : Goat -> View FullPadding msg
