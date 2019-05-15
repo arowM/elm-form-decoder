@@ -15,14 +15,17 @@ module Goat exposing
     , selectErrorField
     )
 
-import Atom.Input as Input exposing (Input)
-import Atom.Select as Select exposing (Select)
+import AssocList exposing (Dict)
+import Atom.Input as Input
+import Atom.Select as Select
 import Css
+import Form
 import Form.Decoder as Decoder exposing (Decoder)
 import Goat.Age as Age exposing (Age)
 import Goat.Contact as Contact exposing (Contact)
 import Goat.ContactType as ContactType exposing (ContactType)
 import Goat.Email as Email exposing (Email)
+import Goat.Field as Field exposing (Field)
 import Goat.Horns as Horns exposing (Horns)
 import Goat.Message as Message exposing (Message)
 import Goat.Name as Name exposing (Name)
@@ -67,40 +70,40 @@ decoderName : Decoder RegisterForm Error Name
 decoderName =
     Name.decoder
         |> Decoder.mapError NameError
-        |> Input.required NameRequired
-        |> Decoder.lift .name
+        |> Form.required NameRequired
+        |> Decoder.lift (AssocList.get Field.Name)
 
 
 decoderAge : Decoder RegisterForm Error Age
 decoderAge =
     Age.decoder
         |> Decoder.mapError AgeError
-        |> Input.required AgeRequired
-        |> Decoder.lift .age
+        |> Form.required AgeRequired
+        |> Decoder.lift (AssocList.get Field.Age)
 
 
 decoderHorns : Decoder RegisterForm Error Horns
 decoderHorns =
     Horns.decoder
         |> Decoder.mapError HornsError
-        |> Input.required HornsRequired
-        |> Decoder.lift .horns
+        |> Form.required HornsRequired
+        |> Decoder.lift (AssocList.get Field.Horns)
 
 
 decoderMessage : Decoder RegisterForm Error (Maybe Message)
 decoderMessage =
     Message.decoder
         |> Decoder.mapError MessageError
-        |> Input.optional
-        |> Decoder.lift .message
+        |> Form.optional
+        |> Decoder.lift  (AssocList.get Field.Message)
 
 
 decoderContact : Decoder RegisterForm Error Contact
 decoderContact =
     ContactType.decoder
         |> Decoder.mapError ContactTypeError
-        |> Select.required ContactTypeRequired
-        |> Decoder.lift .contactType
+        |> Form.required ContactTypeRequired
+        |> Decoder.lift (AssocList.get Field.ContactType)
         |> Decoder.andThen decoderContact_
 
 
@@ -120,16 +123,16 @@ decoderEmail : Decoder RegisterForm Error Email
 decoderEmail =
     Email.decoder
         |> Decoder.mapError EmailError
-        |> Input.required EmailRequired
-        |> Decoder.lift .email
+        |> Form.required EmailRequired
+        |> Decoder.lift (AssocList.get Field.Email)
 
 
 decoderPhone : Decoder RegisterForm Error Phone
 decoderPhone =
     Phone.decoder
         |> Decoder.mapError PhoneError
-        |> Input.required PhoneRequired
-        |> Decoder.lift .phone
+        |> Form.required PhoneRequired
+        |> Decoder.lift (AssocList.get Field.Phone)
 
 
 
@@ -137,26 +140,12 @@ decoderPhone =
 
 
 type alias RegisterForm =
-    { name : Input
-    , age : Input
-    , horns : Input
-    , email : Input
-    , phone : Input
-    , contactType : Select
-    , message : Input
-    }
+    Dict Field Form.Value
 
 
 init : RegisterForm
 init =
-    { name = Input.empty
-    , age = Input.empty
-    , horns = Input.empty
-    , email = Input.empty
-    , phone = Input.empty
-    , contactType = Select.none
-    , message = Input.empty
-    }
+    AssocList.empty
 
 
 
@@ -325,9 +314,9 @@ fieldOptional str =
         ]
 
 
-inputErrorField : (err -> List String) -> Decoder String err a -> Input -> Html msg
+inputErrorField : (err -> List String) -> Decoder String err a -> Maybe Form.Value -> Html msg
 inputErrorField f d i =
-    case Input.decodeField d i of
+    case Form.decodeField d i of
         Ok _ ->
             Html.nothing
 
@@ -336,9 +325,9 @@ inputErrorField f d i =
                 List.map f errs
 
 
-selectErrorField : (err -> List String) -> Decoder String err a -> Select -> Html msg
+selectErrorField : (err -> List String) -> Decoder String err a -> Maybe Form.Value -> Html msg
 selectErrorField f d i =
-    case Select.decodeField d i of
+    case Form.decodeField d i of
         Ok _ ->
             Html.nothing
 

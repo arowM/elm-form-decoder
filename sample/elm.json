@@ -12,7 +12,8 @@
             "arowM/html-extra": "1.0.0",
             "elm/browser": "1.0.1",
             "elm/core": "1.0.2",
-            "elm-explorations/markdown": "1.0.0"
+            "elm-explorations/markdown": "1.0.0",
+            "pzp1997/assoc-list": "1.0.0"
         },
         "indirect": {
             "arowM/elm-html-extra-internal": "1.1.0",

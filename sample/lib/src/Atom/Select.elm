@@ -1,17 +1,10 @@
 module Atom.Select exposing
-    ( Select
-    , fromString
-    , toString
-    , none
-    , Option
+    ( Option
     , defaultOption
     , Label
     , label
     , Config
     , view
-    , decodeField
-    , optional
-    , required
     )
 
 {-| Atomic view for select boxes.
@@ -19,10 +12,6 @@ module Atom.Select exposing
 
 # Core
 
-@docs Select
-@docs fromString
-@docs toString
-@docs none
 @docs Option
 @docs defaultOption
 @docs Label
@@ -34,17 +23,10 @@ module Atom.Select exposing
 @docs Config
 @docs view
 
-
-# Decoders
-
-@docs decodeField
-@docs optional
-@docs required
-
 -}
 
 import Css
-import Form.Decoder as Decoder exposing (Decoder)
+import Form exposing (Value)
 import Html exposing (Attribute, Html, select, text)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -54,12 +36,6 @@ import Html.Lazy exposing (lazy2)
 
 
 -- Core
-
-
-{-| Core type to maintain select state.
--}
-type Select
-    = Select String
 
 
 {-| Representing a label shown in select options.
@@ -78,27 +54,6 @@ type alias Option =
 label : String -> Label
 label =
     Label
-
-
-{-| An alias for `fromString ""`.
--}
-none : Select
-none =
-    Select ""
-
-
-{-| Unwrap `Select` to `String`.
--}
-toString : Select -> String
-toString (Select v) =
-    v
-
-
-{-| Constructor for `Select`.
--}
-fromString : String -> Select
-fromString =
-    Select
 
 
 {-| Default option when selected none.
@@ -123,10 +78,10 @@ type alias Config msg =
 
 {-| Atomic view for select box.
 -}
-view : Config msg -> Select -> Html msg
-view conf (Select v) =
+view : Config msg -> Value -> Html msg
+view conf v =
     select
-        [ Attributes.value v
+        [ Attributes.value (Form.toString v)
         , Events.onInput conf.onChange
         , class "select"
         ]
@@ -148,76 +103,6 @@ option str v =
         ]
         [ text str
         ]
-
-
-
--- Decoders
-
-
-{-| Decoder for each select field.
-
-    decodeField =
-        Decoder.run << optional
-
--}
-decodeField : Decoder String err a -> Select -> Result (List err) (Maybe a)
-decodeField =
-    Decoder.run << optional
-
-
-{-| Used for building up form decoder.
-
-    import Form.Decoder as Decoder exposing (Decoder)
-
-    Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| none
-    --> Err [ "Invalid" ]
-
-    Decoder.run (optional <| Decoder.int "Invalid") <| none
-    --> Ok Nothing
-
-    Decoder.run (Decoder.lift toString <| Decoder.int "Invalid") <| fromString "21"
-    --> Ok 21
-
-    Decoder.run (optional <| Decoder.int "Invalid") <| fromString "21"
-    --> Ok <| Just 21
-
--}
-optional : Decoder String err a -> Decoder Select err (Maybe a)
-optional d =
-    Decoder.with <|
-        \(Select a) ->
-            case a of
-                "" ->
-                    Decoder.always Nothing
-
-                _ ->
-                    Decoder.lift toString <| Decoder.map Just <| d
-
-
-{-| Used for building up form decoder.
-
-    import Form.Decoder as Decoder exposing (Decoder)
-
-    Decoder.run (required "Required" <| Decoder.int "Invalid") <| none
-    --> Err [ "Required" ]
-
-    Decoder.run (required "Required" <| Decoder.int "Invalid") <| fromString "foo"
-    --> Err [ "Invalid" ]
-
-    Decoder.run (required "Required" <| Decoder.int "Invalid") <| fromString "21"
-    --> Ok 21
-
--}
-required : err -> Decoder String err a -> Decoder Select err a
-required err d =
-    Decoder.with <|
-        \(Select a) ->
-            case a of
-                "" ->
-                    Decoder.fail err
-
-                _ ->
-                    Decoder.lift toString d
 
 
 

@@ -21,6 +21,7 @@
             "Html.Attributes.More"
         ],
         "Utilities": [
+            "Form",
             "ZenDigit",
             "Css"
         ]

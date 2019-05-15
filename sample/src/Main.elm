@@ -1,15 +1,18 @@
 module Main exposing (main)
 
+import AssocList
 import Atom.Input as Input
 import Atom.Select as Select
 import Browser
 import Browser.Navigation
 import Css
+import Form
 import Form.Decoder as Decoder
 import Goat exposing (Goat)
 import Goat.Age
 import Goat.ContactType as ContactType
 import Goat.Email
+import Goat.Field as Field exposing (Field)
 import Goat.Horns
 import Goat.Message
 import Goat.Name
@@ -62,78 +65,19 @@ init =
 type
     Msg
     -- Register Form
-    = ChangeName String
-    | ChangeAge String
-    | ChangeHorns String
-    | ChangeEmail String
-    | ChangePhone String
-    | ChangeMessage String
-    | ChangeContactType String
+    = ChangeField Field String
     | SubmitRegister
     | RegisterAnotherGoat
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ registerForm } as model) =
-    let
-        setRegisterForm : Goat.RegisterForm -> Model
-        setRegisterForm a =
-            { model | registerForm = a }
-    in
     case msg of
-        ChangeName name ->
-            ( setRegisterForm
-                { registerForm
-                    | name = Input.fromString name
-                }
-            , Cmd.none
-            )
-
-        ChangeAge age ->
-            ( setRegisterForm
-                { registerForm
-                    | age = Input.fromString age
-                }
-            , Cmd.none
-            )
-
-        ChangeHorns horns ->
-            ( setRegisterForm
-                { registerForm
-                    | horns = Input.fromString horns
-                }
-            , Cmd.none
-            )
-
-        ChangeEmail email ->
-            ( setRegisterForm
-                { registerForm
-                    | email = Input.fromString email
-                }
-            , Cmd.none
-            )
-
-        ChangePhone phone ->
-            ( setRegisterForm
-                { registerForm
-                    | phone = Input.fromString phone
-                }
-            , Cmd.none
-            )
-
-        ChangeMessage message ->
-            ( setRegisterForm
-                { registerForm
-                    | message = Input.fromString message
-                }
-            , Cmd.none
-            )
-
-        ChangeContactType ctype ->
-            ( setRegisterForm
-                { registerForm
-                    | contactType = Select.fromString ctype
-                }
+        ChangeField field new ->
+            ( { model
+                | registerForm =
+                    AssocList.insert field (Form.fromString new) registerForm
+              }
             , Cmd.none
             )
 
@@ -267,14 +211,16 @@ registerForm_view verbose { registerForm } =
                 , Layout.wrap2
                     [ Input.view
                         { placeholder = "Sakura-chan"
-                        , onChange = ChangeName
+                        , onChange = ChangeField Field.Name
                         }
-                        registerForm.name
+                      <|
+                        getValue Field.Name registerForm
                     ]
                 , Goat.inputErrorField
                     Goat.Name.errorField
                     Goat.Name.decoder
-                    registerForm.name
+                  <|
+                    AssocList.get Field.Name registerForm
                 ]
             ]
         , Layout.row
@@ -287,14 +233,16 @@ registerForm_view verbose { registerForm } =
                 , Layout.wrap2
                     [ Input.view
                         { placeholder = "2"
-                        , onChange = ChangeAge
+                        , onChange = ChangeField Field.Age
                         }
-                        registerForm.age
+                      <|
+                        getValue Field.Age registerForm
                     ]
                 , Goat.inputErrorField
                     Goat.Age.errorField
                     Goat.Age.decoder
-                    registerForm.age
+                  <|
+                    AssocList.get Field.Age registerForm
                 ]
             ]
         , Layout.row
@@ -307,14 +255,16 @@ registerForm_view verbose { registerForm } =
                 , Layout.wrap2
                     [ Input.view
                         { placeholder = "0"
-                        , onChange = ChangeHorns
+                        , onChange = ChangeField Field.Horns
                         }
-                        registerForm.horns
+                      <|
+                        getValue Field.Horns registerForm
                     ]
                 , Goat.inputErrorField
                     Goat.Horns.errorField
                     Goat.Horns.decoder
-                    registerForm.horns
+                  <|
+                    AssocList.get Field.Horns registerForm
                 ]
             ]
         , Layout.row
@@ -329,21 +279,23 @@ registerForm_view verbose { registerForm } =
                         { options =
                             ( Select.label "== Choose one ==", "" )
                                 :: List.map (\c -> ( ContactType.toLabel c, ContactType.toString c )) ContactType.enum
-                        , onChange = ChangeContactType
+                        , onChange = ChangeField Field.ContactType
                         }
-                        registerForm.contactType
+                      <|
+                        getValue Field.ContactType registerForm
                     ]
                 , Goat.selectErrorField
                     ContactType.errorField
                     ContactType.decoder
-                    registerForm.contactType
+                  <|
+                    AssocList.get Field.ContactType registerForm
                 ]
             ]
         , div
             [ Mixin.row
             , class "toggle-field"
             , Attributes.boolAttribute "aria-hidden" <|
-                Select.decodeField ContactType.decoder registerForm.contactType
+                Form.decodeField ContactType.decoder (AssocList.get Field.ContactType registerForm)
                     /= Ok (Just ContactType.UseEmail)
             ]
             [ Goat.label "Email"
@@ -355,21 +307,23 @@ registerForm_view verbose { registerForm } =
                 , Layout.wrap2
                     [ Input.view
                         { placeholder = "you-goat-mail@example.com"
-                        , onChange = ChangeEmail
+                        , onChange = ChangeField Field.Email
                         }
-                        registerForm.email
+                      <|
+                        getValue Field.Email registerForm
                     ]
                 , Goat.inputErrorField
                     Goat.Email.errorField
                     Goat.Email.decoder
-                    registerForm.email
+                  <|
+                    AssocList.get Field.Email registerForm
                 ]
             ]
         , div
             [ Mixin.row
             , class "toggle-field"
             , Attributes.boolAttribute "aria-hidden" <|
-                Select.decodeField ContactType.decoder registerForm.contactType
+                Form.decodeField ContactType.decoder (AssocList.get Field.ContactType registerForm)
                     /= Ok (Just ContactType.UsePhone)
             ]
             [ Goat.label "Phone number"
@@ -382,14 +336,16 @@ registerForm_view verbose { registerForm } =
                 , Layout.wrap2
                     [ Input.view
                         { placeholder = "090-0000-0000"
-                        , onChange = ChangePhone
+                        , onChange = ChangeField Field.Phone
                         }
-                        registerForm.phone
+                      <|
+                        getValue Field.Phone registerForm
                     ]
                 , Goat.inputErrorField
                     Goat.Phone.errorField
                     Goat.Phone.decoder
-                    registerForm.phone
+                  <|
+                    AssocList.get Field.Phone registerForm
                 ]
             ]
         , Layout.row
@@ -400,14 +356,16 @@ registerForm_view verbose { registerForm } =
                 , Layout.wrap2
                     [ Input.view
                         { placeholder = "Hi! I'm Sakura-chan."
-                        , onChange = ChangeMessage
+                        , onChange = ChangeField Field.Message
                         }
-                        registerForm.message
+                      <|
+                        getValue Field.Message registerForm
                     ]
                 , Goat.inputErrorField
                     Goat.Message.errorField
                     Goat.Message.decoder
-                    registerForm.message
+                  <|
+                    AssocList.get Field.Message registerForm
                 ]
             ]
         , div
@@ -422,6 +380,12 @@ registerForm_view verbose { registerForm } =
                 ]
             ]
         ]
+
+
+getValue : Field -> Goat.RegisterForm -> Form.Value
+getValue field form =
+    Maybe.withDefault Form.none <|
+        AssocList.get field form
 
 
 
