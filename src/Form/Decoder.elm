@@ -25,8 +25,9 @@ module Form.Decoder exposing
     , field
     , top
     , mapError
-    , andThen
+    , pass
     , with
+    , andThen
     , list
     , array
     )
@@ -90,8 +91,9 @@ module Form.Decoder exposing
 
 # Advanced
 
-@docs andThen
+@docs pass
 @docs with
+@docs andThen
 
 
 # Helper functions for special situation
@@ -688,7 +690,7 @@ top f =
     advancedDecoder =
         Form.Decoder.identity
             |> assert (maxLength TooLong 5)
-            |> andThen (\_ -> int InvalidInt)
+            |> pass (int InvalidInt)
             |> assert (maxBound TooBig 300)
 
     run advancedDecoder "foooooo"
@@ -705,6 +707,66 @@ top f =
 
     run advancedDecoder "200"
     --> Ok 200
+
+-}
+pass : Decoder b x c -> Decoder a x b -> Decoder a x c
+pass d (Decoder g) =
+    custom <|
+        \a ->
+            case g a of
+                Err err ->
+                    Err err
+
+                Ok b ->
+                    run d b
+
+
+{-| Similar to `with`, but convenient for chaining a sequence of decoders.
+
+    type Image
+        = B64Image Base64
+        | ImagePath Path
+
+    type Base64
+        = Base64 String
+
+    type Path
+        = Path (List String)
+
+    type Error
+        = Required
+
+    base64Decoder : Decoder String Error Base64
+    base64Decoder =
+        custom <| \s -> Ok <| Base64 s
+
+
+    pathDecoder : Decoder String Error Path
+    pathDecoder =
+        custom <| \s -> Ok <| Path <| String.split "/" s
+
+    imageDecoder : Decoder String Error Image
+    imageDecoder =
+        Form.Decoder.identity
+            |> assert (minLength Required 1)
+            |> andThen
+                (\str ->
+                    if String.startsWith "data:" str
+                        then map B64Image base64Decoder
+                        else map ImagePath pathDecoder
+                )
+
+    run imageDecoder ""
+    --> Err [ Required ]
+
+    run imageDecoder "foo"
+    --> Ok <| ImagePath <| Path [ "foo" ]
+
+    run imageDecoder "/foo/bar"
+    --> Ok <| ImagePath <| Path [ "", "foo", "bar" ]
+
+    run imageDecoder "data:image/png;base64,xxxxx..."
+    --> Ok <| B64Image <| Base64 "data:image/png;base64,xxxxx..."
 
 -}
 andThen : (a -> Decoder input x b) -> Decoder input x a -> Decoder input x b

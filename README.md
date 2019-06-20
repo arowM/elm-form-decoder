@@ -116,7 +116,7 @@ age : Decoder String Error Int
 age =
     Decoder.identity
         |> Decoder.assert (Decoder.minLength AgeRequired 1)
-        |> Decoder.andThen (\_ -> Decoder.int AgeInvalidInt)
+        |> Decoder.pass (Decoder.int AgeInvalidInt)
         |> Decoder.assert (Decoder.minBound AgeNegative 0)
 ```
 
