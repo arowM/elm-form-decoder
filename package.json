@@ -3,14 +3,14 @@
   "scripts": {
     "format": "elm-format src",
     "start": "elm-doc-preview",
-    "test": "elm-analyse && elm-format --validate src && elm make --docs=/tmp/docs.json && elm-verify-examples"
+    "test": "elm-analyse && elm-format --validate src && elm make --docs=/tmp/docs.json && elm-verify-examples --fail-on-warn -r"
   },
   "devDependencies": {
     "elm-analyse": "^0.16.5",
-    "elm-doc-preview": "^2.0.5",
-    "elm-format": "^0.8.2",
+    "elm-doc-preview": "^3.0.4",
+    "elm-format": "^0.8.3",
     "elm-test": "^0.19.1",
-    "elm-verify-examples": "^3.0.1"
+    "elm-verify-examples": "^5.0.0"
   },
   "dependencies": {
     "elm": "^0.19.1-3"
