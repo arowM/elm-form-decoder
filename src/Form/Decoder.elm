@@ -861,7 +861,7 @@ with f =
 
 {-| Supposed to be used for advanced input fields that user can append new input.
 
-For example, some forms would accept arbitrary number of email addresses by providing "Add" button to prepend new input field.
+For example, some forms would accept arbitrary number of email addresses by providing "Add" button to append new input field.
 ![list-sample](https://user-images.githubusercontent.com/1481749/57004659-a1698d00-6c0b-11e9-83c6-1a17c998125c.png)
 
     type Error
@@ -887,12 +887,12 @@ For example, some forms would accept arbitrary number of email addresses by prov
 list : Decoder a err b -> Decoder (List a) err (List b)
 list d =
     custom <|
-        List.foldr prependListResult (Ok [])
+        List.foldr appendListResult (Ok [])
             << List.map (run d)
 
 
-prependListResult : Result (List err) b -> Result (List err) (List b) -> Result (List err) (List b)
-prependListResult r1 r2 =
+appendListResult : Result (List err) b -> Result (List err) (List b) -> Result (List err) (List b)
+appendListResult r1 r2 =
     case ( r1, r2 ) of
         ( Err err, Err errs ) ->
             Err (err ++ errs)
