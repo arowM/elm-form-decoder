@@ -29,7 +29,9 @@ module Form.Decoder exposing
     , with
     , andThen
     , list
+    , listOf
     , array
+    , arrayOf
     )
 
 {-| Main module that exports primitive decoders and helper functions for form decoding.
@@ -99,7 +101,9 @@ module Form.Decoder exposing
 # Helper functions for special situation
 
 @docs list
+@docs listOf
 @docs array
+@docs arrayOf
 
 -}
 
@@ -885,10 +889,44 @@ For example, some forms would accept arbitrary number of email addresses by prov
 
 -}
 list : Decoder a err b -> Decoder (List a) err (List b)
-list d =
+list =
+    mapError Tuple.second << listOf
+
+
+{-| Similar to `list`, but also returns the index of the element where the error occurred.
+
+    type Error
+        = TooShort
+        | TooLong
+
+    decoder : Decoder String Error String
+    decoder =
+        Form.Decoder.identity
+            |> assert (minLength TooShort 1)
+            |> assert (maxLength TooLong 5)
+
+    run (listOf decoder) [ "foo", "bar", "baz" ]
+    --> Ok [ "foo", "bar", "baz" ]
+
+    run (listOf decoder) [ "foo", "", "baz" ]
+    --> Err [ (1, TooShort) ]
+
+    run (listOf decoder) [ "foo", "", "bazbaz", "barbar" ]
+    --> Err [ (1, TooShort), (2, TooLong), (3, TooLong) ]
+
+-}
+listOf : Decoder a err b -> Decoder (List a) ( Int, err ) (List b)
+listOf d =
     custom <|
-        List.foldr appendListResult (Ok [])
-            << List.map (run d)
+        \ls ->
+            List.foldr appendListResult (Ok []) <|
+                List.indexedMap (\n -> runWithTag n d) ls
+
+
+runWithTag : tag -> Decoder a err b -> a -> Result (List ( tag, err )) b
+runWithTag tag d a =
+    run d a
+        |> Result.mapError (List.map (\err -> ( tag, err )))
 
 
 appendListResult : Result (List err) b -> Result (List err) (List b) -> Result (List err) (List b)
@@ -932,11 +970,40 @@ appendListResult r1 r2 =
 
 -}
 array : Decoder a err b -> Decoder (Array a) err (Array b)
-array d =
+array =
+    mapError Tuple.second << arrayOf
+
+
+{-| Similar to `array`, but also returns the index of the element where the error occurred.
+
+    import Array
+
+    type Error
+        = TooShort
+        | TooLong
+
+    decoder : Decoder String Error String
+    decoder =
+        Form.Decoder.identity
+            |> assert (minLength TooShort 1)
+            |> assert (maxLength TooLong 5)
+
+    run (arrayOf decoder) <| Array.fromList [ "foo", "bar", "baz" ]
+    --> Ok <| Array.fromList [ "foo", "bar", "baz" ]
+
+    run (arrayOf decoder) <| Array.fromList [ "foo", "", "baz" ]
+    --> Err [ (1, TooShort) ]
+
+    run (arrayOf decoder) <| Array.fromList [ "foo", "", "bazbaz", "barbar" ]
+    --> Err [ (1, TooShort), (2, TooLong), (3, TooLong) ]
+
+-}
+arrayOf : Decoder a err b -> Decoder (Array a) ( Int, err ) (Array b)
+arrayOf d =
     custom <|
         Result.mapError List.reverse
             << Array.foldl pushArrayResult (Ok <| Array.fromList [])
-            << Array.map (run d)
+            << Array.indexedMap (\n -> runWithTag n d)
 
 
 pushArrayResult : Result (List err) b -> Result (List err) (Array b) -> Result (List err) (Array b)
