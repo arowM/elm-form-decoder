@@ -9,7 +9,9 @@ module Form.Decoder exposing
     , identity
     , fail
     , minBound
+    , minBoundWith
     , maxBound
+    , maxBoundWith
     , minLength
     , maxLength
     , custom
@@ -61,7 +63,9 @@ module Form.Decoder exposing
 # Primitive validators
 
 @docs minBound
+@docs minBoundWith
 @docs maxBound
+@docs maxBoundWith
 @docs minLength
 @docs maxLength
 
@@ -311,6 +315,27 @@ minBound err bound =
                 Err [ err ]
 
 
+{-| Primitive validator limiting by minimum bound with a custom comparison function.
+
+    run (minBoundWith compare "Too small" 10) 2
+    --> Err [ "Too small" ]
+
+-}
+minBoundWith : (a -> a -> Order) -> err -> a -> Validator a err
+minBoundWith compare err bound =
+    custom <|
+        \n ->
+            case compare n bound of
+                GT ->
+                    Ok ()
+
+                EQ ->
+                    Ok ()
+
+                LT ->
+                    Err [ err ]
+
+
 {-| Primitive validator limiting by maximum bound.
 
     run (maxBound "Too large" 100) 200
@@ -326,6 +351,27 @@ maxBound err bound =
 
             else
                 Err [ err ]
+
+
+{-| Primitive validator limiting by maximum bound with a custom comparison function.
+
+    run (maxBoundWith compare "Too large" 100) 200
+    --> Err [ "Too large" ]
+
+-}
+maxBoundWith : (a -> a -> Order) -> err -> a -> Validator a err
+maxBoundWith compare err bound =
+    custom <|
+        \n ->
+            case compare n bound of
+                LT ->
+                    Ok ()
+
+                EQ ->
+                    Ok ()
+
+                GT ->
+                    Err [ err ]
 
 
 {-| Primitive validator limiting by minimum length.
