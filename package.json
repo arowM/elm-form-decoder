@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "elm-analyse": "^0.16.5",
-    "elm-doc-preview": "^3.0.4",
+    "elm-doc-preview": "^5.0.3",
     "elm-format": "^0.8.3",
     "elm-test": "^0.19.1",
     "elm-verify-examples": "^5.0.0"
