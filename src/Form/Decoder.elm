@@ -16,6 +16,7 @@ module Form.Decoder exposing
     , maxLength
     , custom
     , assert
+    , assertMany
     , when
     , unless
     , lift
@@ -78,6 +79,7 @@ module Form.Decoder exposing
 # Helper functions for validation
 
 @docs assert
+@docs assertMany
 @docs when
 @docs unless
 
@@ -454,6 +456,72 @@ assert v (Decoder f) =
             Result.andThen
                 (\x -> Result.map (\() -> x) <| run v x)
                 (f a)
+
+
+joinErrors : Result (List err) () -> Result (List err) a -> Result (List err) a
+joinErrors result1 result2 =
+    case ( result1, result2 ) of
+        ( Err err, Ok _ ) ->
+            Err err
+
+        ( Ok (), Err err ) ->
+            Err err
+
+        ( Err err1, Err err2 ) ->
+            Err (err1 ++ err2)
+
+        ( Ok (), Ok val ) ->
+            Ok val
+
+
+{-| Apply many validator on given decoder.
+If a input is invalid for any validator, decoding fails. Even if the first validators fails, this function will still run all the validators listed.
+
+    type Error
+        = Invalid
+        | NotEven
+        | TooBig
+
+    validator1 : Validator Int Error
+    validator1 =
+        custom <| \val ->
+          if Basics.modBy 2 x == 0 then
+            Ok ()
+
+          else
+            Err [ NotEven ]
+
+    validator2 : Validator Int Error
+    validator2 =
+        maxBound TooBig 6
+
+    myDecoder : Decoder String Error Int
+    myDecoder =
+        int Invalid
+            |> assertMany [ validator1, validator2 ]
+
+    run myDecoder "foo"
+    --> Err [ Invalid ]
+
+    run myDecoder "32"
+    --> Err [ TooBig ]
+
+    run myDecoder "3"
+    --> Err [ NotEven ]
+
+    -- This is the important one!
+    run myDecoder "33"
+    --> Err [ TooBig, NotEven ]
+
+    run myDecoder "3"
+    --> Ok 3
+
+-}
+assertMany : Validator input err -> Decoder input err a -> Decoder input err a
+assertMany validator decoder =
+    custom <|
+        \a ->
+            joinErrors (run validator a) (run decoder a)
 
 
 {-| Only checks validity if a condition is `True`.
